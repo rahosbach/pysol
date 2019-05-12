@@ -27,6 +27,21 @@ class Solar_Geometry:
         self.declination = self.calculate_declination(self.day_number)
         self.hour_angle = self.calculate_hour_angle(self.solar_time)
 
+    def __repr__(self):
+        return '{}(G_sc={}, location_latitude={}, location_longitude={}, local_time={}, dst={})'.format(
+                    self.__class__, self.G_sc, self.location_latitude, self.location_longitude,
+                    self.local_time, self.dst)
+
+    def __str__(self):
+        if self.dst:
+            dst_string = 'daylight savings'
+        else:
+            dst_string = 'standard'
+        return ('An instantiation of the Solar_Geometry class using a solar constant of {} W/m^2, '
+                'location coordinates of (lat={}, long={}), and a local {} time of {}.').format(
+                    self.G_sc, self.location_latitude, self.location_longitude, dst_string,
+                    self.local_time)
+                    
     @staticmethod
     def calculate_day_number_from_date(date_str):
         '''Method to calculate the day number of the year
