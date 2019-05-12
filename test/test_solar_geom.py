@@ -56,5 +56,13 @@ class SolarGeomTest(unittest.TestCase):
         self.assertAlmostEqual(self.solar_geometry.calculate_hour_angle(parse("12/31/2019 11:00 AM -02:00")), -15., places=4)
         self.assertAlmostEqual(self.solar_geometry.calculate_hour_angle(parse("June 10, 2002 5:47 PM")), 86.7500, places=4)
 
+    def test_calculate_zenith(self):
+        self.assertAlmostEqual(self.solar_geometry.calculate_zenith("February 13, 9:30 AM", 43), 66.2222, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_zenith("July 1, 6:30 PM", 43), 79.5917, places=4)
+
+    def test_calculate_altitude(self):
+        self.assertAlmostEqual(self.solar_geometry.calculate_altitude("February 13, 9:30 AM", 43), 23.7778, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_altitude("July 1, 6:30 PM", 43), 10.4083, places=4)
+
     def test_calculate_air_mass(self):
         pass

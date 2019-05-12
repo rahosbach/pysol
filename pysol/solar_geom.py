@@ -9,7 +9,7 @@ class Solar_Geometry:
     def __init__(self, **kwargs):
         # define default attributes
         # latitude and longitude are degrees for Arcata, CA
-        # (longitude provided as degrees west)
+        # (positive latitude is north, longitude provided as degrees west)
         default_attr = dict(
             G_sc=1367.,
             location_latitude=40.8665,
@@ -26,6 +26,8 @@ class Solar_Geometry:
         self.solar_time = self.calculate_solar_time(self.local_time, self.location_longitude, self.dst)
         self.declination = self.calculate_declination(self.day_number)
         self.hour_angle = self.calculate_hour_angle(self.solar_time)
+        self.zenith = self.calculate_zenith(self.solar_time, self.location_latitude)
+        self.altitude = self.calculate_altitude(self.solar_time, self.location_latitude)
 
     def __repr__(self):
         return '{}(G_sc={}, location_latitude={}, location_longitude={}, local_time={}, dst={})'.format(
@@ -171,6 +173,37 @@ class Solar_Geometry:
             tzinfo=solar_time.tzinfo)
         hours_diff = (solar_time - solar_noon).total_seconds() / 3600
         return hours_diff * 15.
+
+    def calculate_zenith(self, solar_time=None, latitude=None):
+        # Use class attributes if available
+        solar_time = solar_time if solar_time is not None else self.solar_time
+        latitude = latitude if latitude is not None else self.location_latitude
+
+        # Ensure latitude is a valid number
+        try:
+            latitude = float(latitude)
+            if (latitude < -90) | (latitude > 90):
+                raise ValueError('latitude must be a numeric value between -90 and 90 (inclusive).')
+        except ValueError:
+            raise ValueError('latitude must be a numeric value between -90 and 90 (inclusive).')
+
+        n = self.calculate_day_number_from_date(solar_time)
+        declination = math.radians(self.calculate_declination(n))
+        hour_angle = math.radians(self.calculate_hour_angle(parse(solar_time)))
+        return math.degrees(math.acos(
+            (math.cos(math.radians(latitude)) * math.cos(declination) * math.cos(hour_angle)) +
+            (math.sin(math.radians(latitude)) * math.sin(declination))))
+
+    def calculate_altitude(self, solar_time=None, latitude=None):
+        # Use class attributes if available
+        solar_time = solar_time if solar_time is not None else self.solar_time
+        latitude = latitude if latitude is not None else self.location_latitude
+
+        return 90 - self.calculate_zenith(solar_time, latitude)
+
+
+        
+
 
 class Solar_Array(Solar_Geometry):
     def __init__(self, **kwargs):
