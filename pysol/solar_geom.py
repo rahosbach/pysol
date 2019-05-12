@@ -5,7 +5,7 @@ from dateutil.tz import *
 import pytz
 import warnings
 
-class Solar_Array:
+class Solar_Geometry:
     def __init__(self, **kwargs):
         # define default attributes
         # latitude and longitude are degrees for Arcata, CA
@@ -14,25 +14,18 @@ class Solar_Array:
             G_sc=1367.,
             location_latitude=40.8665,
             location_longitude=124.0828,
-            surface_tracking=False,
-            surface_slope=40.8665,
-            surface_azimuth=0.)
-        # define (additional) allowed attributes with no default value
-        more_allowed_attr = ['local_time', 'dst', 'surface_area_m2', 'array_efficiency']
-        allowed_attr = list(default_attr.keys()) + more_allowed_attr
+            local_time='May 1, 2019 12:00 PM -08:00',
+            dst=False)
         default_attr.update(kwargs)
-        self.__dict__.update((k,v) for k,v in default_attr.items() if k in allowed_attr)
+        self.__dict__.update((k,v) for k,v in default_attr.items() if k in list(default_attr.keys()))
 
-        if 'local_time' in default_attr.keys():
-            self.day_number = self.calculate_day_number_from_date(self.local_time)
-            self.B = self.calculate_B(self.day_number)
-            self.G_on = self.calculate_G_on(self.day_number)
-            self.E = self.calculate_E(self.day_number)
-            if 'dst' not in default_attr.keys():
-                self.dst = False
-            self.solar_time = self.calculate_solar_time()
-            self.declination = self.calculate_declination(self.day_number)
-            self.hour_angle = self.calculate_hour_angle(self.solar_time)
+        self.day_number = self.calculate_day_number_from_date(self.local_time)
+        self.B = self.calculate_B(self.day_number)
+        self.G_on = self.calculate_G_on(self.day_number)
+        self.E = self.calculate_E(self.day_number)
+        self.solar_time = self.calculate_solar_time(self.local_time, self.location_longitude, self.dst)
+        self.declination = self.calculate_declination(self.day_number)
+        self.hour_angle = self.calculate_hour_angle(self.solar_time)
 
     @staticmethod
     def calculate_day_number_from_date(date_str):
@@ -91,7 +84,7 @@ class Solar_Array:
         '''
         # Use class attributes if available
         local_time = local_time if local_time is not None else self.local_time
-        longitude = longitude if longitude is not None else self.longitude
+        longitude = longitude if longitude is not None else self.location_longitude
         dst = dst if dst is not None else self.dst
         
         # Ensure longitude is a valid number
@@ -163,3 +156,20 @@ class Solar_Array:
             tzinfo=solar_time.tzinfo)
         hours_diff = (solar_time - solar_noon).total_seconds() / 3600
         return hours_diff * 15.
+
+class Solar_Array(Solar_Geometry):
+    def __init__(self, **kwargs):
+        # define default attributes
+        # latitude and longitude are degrees for Arcata, CA
+        # (longitude provided as degrees west)
+        default_attr = dict(
+            G_sc=1367.,
+            location_latitude=40.8665,
+            location_longitude=124.0828,
+            local_time='May 1, 2019 12:00 PM -08:00',
+            dst=False)
+        # define (additional) allowed attributes with no default value
+        more_allowed_attr = ['local_time', 'dst', 'surface_area_m2', 'array_efficiency']
+        allowed_attr = list(default_attr.keys()) + more_allowed_attr
+        default_attr.update(kwargs)
+        self.__dict__.update((k,v) for k,v in default_attr.items() if k in allowed_attr)
