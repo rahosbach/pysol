@@ -18,10 +18,21 @@ class Solar_Array:
             surface_slope=40.8665,
             surface_azimuth=0.)
         # define (additional) allowed attributes with no default value
-        more_allowed_attr = ['local_time', 'surface_area_m2', 'array_efficiency']
+        more_allowed_attr = ['local_time', 'dst', 'surface_area_m2', 'array_efficiency']
         allowed_attr = list(default_attr.keys()) + more_allowed_attr
         default_attr.update(kwargs)
         self.__dict__.update((k,v) for k,v in default_attr.items() if k in allowed_attr)
+
+        if 'local_time' in default_attr.keys():
+            self.day_number = self.calculate_day_number_from_date(self.local_time)
+            self.B = self.calculate_B(self.day_number)
+            self.G_on = self.calculate_G_on(self.day_number)
+            self.E = self.calculate_E(self.day_number)
+            if 'dst' not in default_attr.keys():
+                self.dst = False
+            self.solar_time = self.calculate_solar_time()
+            self.declination = self.calculate_declination(self.day_number)
+            self.hour_angle = self.calculate_hour_angle(self.solar_time)
 
     @staticmethod
     def calculate_day_number_from_date(date_str):
@@ -71,7 +82,7 @@ class Solar_Array:
                 (0.014615 * math.cos(2 * B)) -
                 (0.04089 * math.sin(2 * B))))
 
-    def calculate_solar_time(self, local_time=None, longitude=None, dst=False):
+    def calculate_solar_time(self, local_time=None, longitude=None, dst=None):
         '''Method to calculate solar time given a local timestamp
         (including date and time zone offset from UTC), a location's
         longitude (in degrees west), and an indicator of whether or
@@ -81,6 +92,7 @@ class Solar_Array:
         # Use class attributes if available
         local_time = local_time if local_time is not None else self.local_time
         longitude = longitude if longitude is not None else self.longitude
+        dst = dst if dst is not None else self.dst
         
         # Ensure longitude is a valid number
         try:
@@ -98,20 +110,22 @@ class Solar_Array:
             raise ValueError('local_time must provide a time zone offset, such as `1/1/2019 12:00 PM -06:00`.')
         if local_ts.date() == dt.datetime.now().date():
             warnings.warn('A date was likely not provided in local_time; therefore, the date has been set to today.')
-        
-        utc_offset = abs(local_ts.tzinfo.utcoffset(local_ts).seconds // 3600)
-        # utc_offset can give values greater than 12, which we don't want.
-        # For instance, if the time zone is -4, utc_offset will be 20,
-        # when we really need it to be 4 for this calculation.  This if
-        # construct fixes that.
-        if utc_offset > 12:
-            utc_offset = 24 - utc_offset
+
+        utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3600
 
         # Correct for daylight savings time
         if dst:
             local_ts = local_ts - dt.timedelta(hours=1)
+            local_ts = dt.datetime(
+                year=local_ts.year,
+                month=local_ts.month,
+                day=local_ts.day,
+                hour=local_ts.hour,
+                minute=local_ts.minute,
+                tzinfo=tzoffset(None, (utc_offset - 1) * 3600)) 
+            utc_offset -= 1
 
-        standard_meridian = 15 * utc_offset
+        standard_meridian = 15 * abs(utc_offset)
         E = self.calculate_E(local_time)
         longitude_correction_mins = 4. * (standard_meridian - longitude)
         return local_ts + dt.timedelta(

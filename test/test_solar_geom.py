@@ -39,7 +39,7 @@ class SolarGeomTest(unittest.TestCase):
             (self.solar_object.calculate_solar_time('February 3, 2019 10:30 AM -06:00', 89.4, False) -
             parse('February 3, 2019 10:19 AM -06:00')).total_seconds()) <= 30)
         self.assertTrue(abs(
-            (self.solar_object.calculate_solar_time('February 3, 2019 10:30 AM -06:00', 89.4, True) -
+            (self.solar_object.calculate_solar_time('February 3, 2019 10:30 AM -05:00', 89.4, True) -
             parse('February 3, 2019 9:19 AM -06:00')).total_seconds()) <= 30)
         self.assertRaises(ValueError, lambda: self.solar_object.calculate_solar_time('1/1/2019 8:00 AM -02:00', 375., False))
         self.assertRaises(ValueError, lambda: self.solar_object.calculate_solar_time('1/1/2019 8:00 AM -02:00', 'long', False))
