@@ -19,15 +19,8 @@ class Solar_Geometry:
         default_attr.update(kwargs)
         self.__dict__.update((k,v) for k,v in default_attr.items() if k in list(default_attr.keys()))
 
-        self.day_number = self.calculate_day_number_from_date(self.local_time)
-        self.B = self.calculate_B(self.day_number)
-        self.G_on = self.calculate_G_on(self.day_number)
-        self.E = self.calculate_E(self.day_number)
-        self.solar_time = self.calculate_solar_time(self.local_time, self.location_longitude, self.dst)
-        self.declination = self.calculate_declination(self.day_number)
-        self.hour_angle = self.calculate_hour_angle(self.solar_time)
-        self.zenith = self.calculate_zenith(self.solar_time, self.location_latitude)
-        self.altitude = self.calculate_altitude(self.solar_time, self.location_latitude)
+        for key in set(default_attr.keys())-set(kwargs.keys()):
+            raise Warning('`{}` set to default value of {}'.format(key, default_attr[key]))
 
     def __repr__(self):
         return '{}(G_sc={}, location_latitude={}, location_longitude={}, local_time={}, dst={})'.format(
@@ -59,6 +52,9 @@ class Solar_Geometry:
         radiation incident on the plane normal to the radiation on the nth
         day of the year (G_on) per an equation given by Spencer (1971).
         '''
+        # Use class attributes if available
+        n = n if n is not None else self.day_number
+
         if not(isinstance(n, int)):
             try:
                 n = self.calculate_day_number_from_date(n)
@@ -68,11 +64,14 @@ class Solar_Geometry:
             raise ValueError('If n is an integer, it must be between 1 and 365 (inclusive).')
         return (n - 1) * 360. / 365.
 
-    def calculate_G_on(self, n):
+    def calculate_G_on_W_m2(self, n):
         '''G_on is the extraterrestrial radiation incident on the plane normal
         to the radiation on the nth day of the year per an equation given by
         Spencer (1971).
         ''' 
+        # Use class attributes if available
+        n = n if n is not None else self.day_number
+
         B = self.calculate_B(n)
         multiplier = (1.000110 +
                     (0.034221 * math.cos(B)) +
@@ -84,6 +83,9 @@ class Solar_Geometry:
     def calculate_E(self, n):
         '''E is the equation of time, an equation given by Spencer (1971).
         '''
+        # Use class attributes if available
+        n = n if n is not None else self.day_number
+
         B = math.radians(self.calculate_B(n))
         return (229.2 *
                 (0.000075 +
@@ -141,12 +143,15 @@ class Solar_Geometry:
         return local_ts + dt.timedelta(
             minutes=longitude_correction_mins + E)
 
-    def calculate_declination(self, n):
+    def calculate_declination_degrees(self, n):
         '''The declination is the angular position of the sun
         at solar noon with respect to the plane of the 
         equator (north is positive).  The equation is from
         Spencer (!971).
         '''
+        # Use class attributes if available
+        n = n if n is not None else self.day_number
+
         B = math.radians(self.calculate_B(n))
         return 180. / math.pi * (
             0.006918 -
@@ -157,12 +162,15 @@ class Solar_Geometry:
             (0.002697 * math.cos(3 * B)) +
             (0.00148 * math.sin(3 * B)))
 
-    def calculate_hour_angle(self, solar_time):
+    def calculate_hour_angle_degrees(self, solar_time):
         '''The hour angle is the angular displacement of the
         sun east (negative) or west (positive) of the local
         meridian due to rotation of the earth on its axis at 
         15 degrees per hour.
         '''
+        # Use class attributes if available
+        solar_time = solar_time if solar_time is not None else self.solar_time
+
         solar_noon = dt.datetime(
             year=solar_time.date().year,
             month=solar_time.date().month,
@@ -174,7 +182,7 @@ class Solar_Geometry:
         hours_diff = (solar_time - solar_noon).total_seconds() / 3600
         return hours_diff * 15.
 
-    def calculate_zenith(self, solar_time=None, latitude=None):
+    def calculate_solar_zenith_degrees(self, solar_time=None, latitude=None):
         # Use class attributes if available
         solar_time = solar_time if solar_time is not None else self.solar_time
         latitude = latitude if latitude is not None else self.location_latitude
@@ -188,21 +196,29 @@ class Solar_Geometry:
             raise ValueError('latitude must be a numeric value between -90 and 90 (inclusive).')
 
         n = self.calculate_day_number_from_date(solar_time)
-        declination = math.radians(self.calculate_declination(n))
-        hour_angle = math.radians(self.calculate_hour_angle(parse(solar_time)))
+        declination = math.radians(self.calculate_declination_degrees(n))
+        hour_angle = math.radians(self.calculate_hour_angle_degrees(parse(solar_time)))
         return math.degrees(math.acos(
             (math.cos(math.radians(latitude)) * math.cos(declination) * math.cos(hour_angle)) +
             (math.sin(math.radians(latitude)) * math.sin(declination))))
 
-    def calculate_altitude(self, solar_time=None, latitude=None):
+    def calculate_solar_altitude_degrees(self, solar_time=None, latitude=None):
         # Use class attributes if available
         solar_time = solar_time if solar_time is not None else self.solar_time
         latitude = latitude if latitude is not None else self.location_latitude
 
-        return 90 - self.calculate_zenith(solar_time, latitude)
+        return 90. - self.calculate_solar_zenith_degrees(solar_time, latitude)
 
-
-        
+    def calculate_all_attributes(self):
+        self.day_number = self.calculate_day_number_from_date(self.local_time)
+        self.B = self.calculate_B(self.day_number)
+        self.G_on = self.calculate_G_on_W_m2(self.day_number)
+        self.E = self.calculate_E(self.day_number)
+        self.solar_time = self.calculate_solar_time(self.local_time, self.location_longitude, self.dst)
+        self.declination = self.calculate_declination_degrees(self.day_number)
+        self.hour_angle = self.calculate_hour_angle_degrees(self.solar_time)
+        self.zenith = self.calculate_solar_zenith_degrees(self.solar_time, self.location_latitude)
+        self.altitude = self.calculate_solar_altitude_degrees(self.solar_time, self.location_latitude)
 
 
 class Solar_Array(Solar_Geometry):
