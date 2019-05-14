@@ -70,4 +70,9 @@ class SolarGeomTest(unittest.TestCase):
         self.assertAlmostEqual(self.solar_geometry.calculate_solar_altitude_degrees("July 1, 6:30 PM", 43), 10.4083, places=4)
 
     def test_calculate_air_mass(self):
-        pass
+        self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(60.), 2.0000, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(0.), 1.0000, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(70.), 2.9238, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(71., 0.), 3.0471, places=4)
+        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_air_mass(71.))
+

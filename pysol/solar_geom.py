@@ -209,6 +209,16 @@ class Solar_Geometry:
 
         return 90. - self.calculate_solar_zenith_degrees(solar_time, latitude)
 
+    def calculate_air_mass(self, solar_zenith_degrees, site_altitude_m=None):
+        if solar_zenith_degrees <= 70.:
+            return 1. / math.cos(math.radians(solar_zenith_degrees))
+        elif site_altitude_m is None:
+            raise ValueError('For a `solar_zenith_degrees` > 70 degrees, a site altitude (in meters) must be provided.')
+        else:
+            return math.exp(-0.0001184 * site_altitude_m) / (
+                math.cos(math.radians(solar_zenith_degrees)) + 
+                (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634))
+
     def calculate_all_attributes(self):
         self.day_number = self.calculate_day_number_from_date(self.local_time)
         self.B = self.calculate_B(self.day_number)
