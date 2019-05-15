@@ -12,8 +12,7 @@ class SolarGeomTest(unittest.TestCase):
             G_sc=1367.,
             location_latitude=40.8665,
             location_longitude=124.0828,
-            local_time='May 1, 2019 12:00 PM -08:00',
-            dst=False)
+            local_time='May 1, 2019 12:00 PM -08:00')
 
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
@@ -41,15 +40,12 @@ class SolarGeomTest(unittest.TestCase):
 
     def test_calculate_solar_time(self):
         self.assertTrue(abs(
-            (self.solar_geometry.calculate_solar_time('February 3, 2019 10:30 AM -06:00', 89.4, False) -
+            (self.solar_geometry.calculate_solar_time('February 3, 2019 10:30 AM -06:00', 89.4) -
             parse('February 3, 2019 10:19 AM -06:00')).total_seconds()) <= 30)
-        self.assertTrue(abs(
-            (self.solar_geometry.calculate_solar_time('February 3, 2019 10:30 AM -05:00', 89.4, True) -
-            parse('February 3, 2019 9:19 AM -06:00')).total_seconds()) <= 30)
-        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM -02:00', 375., False))
-        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM -02:00', 'long', False))
-        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM', 100., False))
-        self.assertWarns(Warning, lambda: self.solar_geometry.calculate_solar_time('10:00 AM -02:00', 100., False))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM -02:00', 375.))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM -02:00', 'long'))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_solar_time('1/1/2019 8:00 AM', 100.))
+        self.assertWarns(Warning, lambda: self.solar_geometry.calculate_solar_time('10:00 AM -02:00', 100.))
 
     def test_calculate_declination_degrees(self):
         self.assertAlmostEqual(self.solar_geometry.calculate_declination_degrees(47), -12.6090, places=4)
@@ -75,4 +71,16 @@ class SolarGeomTest(unittest.TestCase):
         self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(70.), 2.9238, places=4)
         self.assertAlmostEqual(self.solar_geometry.calculate_air_mass(71., 0.), 3.0471, places=4)
         self.assertRaises(ValueError, lambda: self.solar_geometry.calculate_air_mass(71.))
+
+    def test_calculate_solar_azimuth_degrees(self):
+        self.assertAlmostEqual(self.solar_geometry.calculate_solar_azimuth_degrees(-37.5, 66.5, 43., -14.), -39.9886, places=4 )
+        self.assertAlmostEqual(self.solar_geometry.calculate_solar_azimuth_degrees(97.5, 79.6, 43., 23.1), 111.9789, places=4 )
+
+    def test_calculate_solar_noon_in_local_time(self):
+        self.assertTrue(abs(
+            (self.solar_geometry.calculate_solar_noon_in_local_time('February 3, 2019 10:30 AM -06:00', 89.4) -
+            parse('February 3, 2019 12:11:25 PM -06:00')).total_seconds()) <= 30)
+        self.assertTrue(abs(
+            (self.solar_geometry.calculate_solar_noon_in_local_time('June 7, 2019 2:15 PM -08:00', 124) -
+            parse('June 7, 2019 12:14:54 PM -08:00')).total_seconds()) <= 30)
 
