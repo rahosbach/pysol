@@ -10,9 +10,9 @@ class SolarGeomTest(unittest.TestCase):
     def setUp(self):
         self.solar_geometry = Solar_Geometry(
             G_sc=1367.,
-            location_latitude=40.8665,
-            location_longitude=124.0828,
-            local_time='May 1, 2019 12:00 PM -08:00')
+            latitude=40.8665,
+            longitude=124.0828,
+            local_standard_time='May 1, 2019 12:00 PM -08:00')
 
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
