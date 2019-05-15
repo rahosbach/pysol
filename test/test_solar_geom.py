@@ -12,7 +12,8 @@ class SolarGeomTest(unittest.TestCase):
             G_sc=1367.,
             latitude=40.8665,
             longitude=124.0828,
-            local_standard_time='May 1, 2019 12:00 PM -08:00')
+            local_standard_time='May 1, 2019 12:00 PM -08:00',
+            location_altitude=None)
 
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
@@ -33,10 +34,10 @@ class SolarGeomTest(unittest.TestCase):
         self.assertAlmostEqual(self.solar_geometry.calculate_G_on_W_m2(1), 1414.91335, places=4)
         self.assertAlmostEqual(self.solar_geometry.calculate_G_on_W_m2(182), 1328.5414, places=4)
 
-    def test_calculate_E(self):
-        self.assertAlmostEqual(self.solar_geometry.calculate_E(1), -2.9044, places=4)
-        self.assertAlmostEqual(self.solar_geometry.calculate_E(34), -13.4885, places=4)
-        self.assertAlmostEqual(self.solar_geometry.calculate_E(304), 16.3751, places=4)
+    def test_calculate_E_min(self):
+        self.assertAlmostEqual(self.solar_geometry.calculate_E_min(1), -2.9044, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_E_min(34), -13.4885, places=4)
+        self.assertAlmostEqual(self.solar_geometry.calculate_E_min(304), 16.3751, places=4)
 
     def test_calculate_solar_time(self):
         self.assertTrue(abs(
@@ -76,11 +77,11 @@ class SolarGeomTest(unittest.TestCase):
         self.assertAlmostEqual(self.solar_geometry.calculate_solar_azimuth_degrees(-37.5, 66.5, 43., -14.), -39.9886, places=4 )
         self.assertAlmostEqual(self.solar_geometry.calculate_solar_azimuth_degrees(97.5, 79.6, 43., 23.1), 111.9789, places=4 )
 
-    def test_calculate_solar_noon_in_local_time(self):
+    def test_calculate_solar_noon_in_local_standard_time(self):
         self.assertTrue(abs(
-            (self.solar_geometry.calculate_solar_noon_in_local_time('February 3, 2019 10:30 AM -06:00', 89.4) -
+            (self.solar_geometry.calculate_solar_noon_in_local_standard_time('February 3, 2019 10:30 AM -06:00', 89.4) -
             parse('February 3, 2019 12:11:25 PM -06:00')).total_seconds()) <= 30)
         self.assertTrue(abs(
-            (self.solar_geometry.calculate_solar_noon_in_local_time('June 7, 2019 2:15 PM -08:00', 124) -
+            (self.solar_geometry.calculate_solar_noon_in_local_standard_time('June 7, 2019 2:15 PM -08:00', 124) -
             parse('June 7, 2019 12:14:54 PM -08:00')).total_seconds()) <= 30)
 
