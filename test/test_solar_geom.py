@@ -10,6 +10,12 @@ class SolarGeomTest(unittest.TestCase):
     def setUp(self):
         self.solar_geometry = Solar_Geometry()
 
+    def test_validate_times(self):
+        self.assertEqual(self.solar_geometry.validate_times('January 1, 2019 12:00 PM'), dt.datetime(2019, 1, 1, 12, 0, 0))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_times('January Blah Blah'))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_times(20190101))
+        self.assertEqual(self.solar_geometry.validate_times(dt.datetime(2019, 1, 1, 12, 0, 0)), dt.datetime(2019, 1, 1, 12, 0, 0))
+
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('1/2/2018'), 2)
