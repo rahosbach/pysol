@@ -5,6 +5,7 @@ from dateutil.tz import *
 import pytz
 import warnings
 
+from pdb import set_trace as bp
 class Solar_Geometry:
     def __init__(self):
         self.G_sc = 1367. # W/m^2
@@ -25,7 +26,7 @@ class Solar_Geometry:
             except ValueError:
                 raise ValueError('Variable `date_time_obj` is not a valid datetime format.')
         elif not(isinstance(date_time_obj, dt.datetime)):
-            raise ValueError('If variable `local_stdate_time_objandard_time` is not a datetime string, it must be a datetime object.')
+            raise ValueError('If variable `date_time_obj` is not a datetime string, it must be a datetime object.')
         else:
             return date_time_obj 
 
@@ -57,12 +58,11 @@ class Solar_Geometry:
             raise ValueError(err_message)
         return altitude
                     
-    @staticmethod
-    def calculate_day_number_from_date(date):
+    def calculate_day_number_from_date(self, date):
         '''Method to calculate the day number of the year
         given a string representing a date or date/time.
         '''
-        date = validate_times(date)
+        date = self.validate_times(date)
         return date.timetuple().tm_yday
 
     def calculate_B(self, date):
@@ -70,7 +70,7 @@ class Solar_Geometry:
         radiation incident on the plane normal to the radiation on the nth
         day of the year (G_on) per an equation given by Spencer (1971).
         '''
-        date = validate_times(date)
+        date = self.validate_times(date)
         n = self.calculate_day_number_from_date(date)
         return (n - 1) * 360. / 365.
 
@@ -105,8 +105,8 @@ class Solar_Geometry:
         not the provided time is a daylight savings time or a
         standard time.
         '''
-        longitude = validate_long_lat(longitude)
-        local_ts = validate_times(local_standard_time)
+        longitude = self.validate_long_lat(longitude)
+        local_ts = self.validate_times(local_standard_time)
 
         # Ensure local_standard_time has a date, time, and time zone offset.
         # Note that parse will automaticall fill in a date or time if not
@@ -146,9 +146,7 @@ class Solar_Geometry:
         meridian due to rotation of the earth on its axis at 
         15 degrees per hour.
         '''
-        longitude = validate_long_lat(longitude)
-        local_ts = validate_time(local_standard_time)
-        solar_ts = self.calculate_solar_time(local_ts, longitude)
+        solar_ts = self.calculate_solar_time(local_standard_time, longitude)
 
         solar_noon = dt.datetime(
             year=solar_ts.date().year,
@@ -162,32 +160,21 @@ class Solar_Geometry:
         return hours_diff * 15.
 
     def calculate_solar_zenith_degrees(self, local_standard_time, latitude, longitude):
-        longitude = validate_long_lat(longitude)
-        latitude = validate_long_lat(latitude, False)
-        
-        local_ts = self.validate_times(local_standard_time)
-        solar_ts= self.calculate_solar_time(local_ts, longitude)
+        latitude = self.validate_long_lat(latitude, False)
+        solar_ts= self.calculate_solar_time(local_standard_time, longitude)
 
         n = self.calculate_day_number_from_date(solar_ts)
-        declination = math.radians(self.calculate_declination_degrees(n))
-        hour_angle = math.radians(self.calculate_hour_angle_degrees(solar_ts))
+        declination = math.radians(self.calculate_declination_degrees(local_standard_time))
+        hour_angle = math.radians(self.calculate_hour_angle_degrees(solar_ts, longitude))
         return math.degrees(math.acos(
             (math.cos(math.radians(latitude)) * math.cos(declination) * math.cos(hour_angle)) +
             (math.sin(math.radians(latitude)) * math.sin(declination))))
 
     def calculate_solar_altitude_degrees(self, local_standard_time, latitude, longitude):
-        longitude = validate_long_lat(longitude)
-        latitude = validate_long_lat(latitude, False)
-        local_ts = self.validate_times(local_standard_time)
-        solar_ts= self.calculate_solar_time(local_ts, longitude)
-        return 90. - self.calculate_solar_zenith_degrees(solar_ts, latitude)
+        return 90. - self.calculate_solar_zenith_degrees(local_standard_time, latitude, longitude)
 
-    def calculate_air_mass(self, local_standard_time, latitude, longitude, site_altitude_m):
-        longitude = validate_long_lat(longitude)
-        latitude = validate_long_lat(latitude, False)
-        local_ts = self.validate_times(local_standard_time)
-        solar_ts = self.calculate_solar_time(local_ts, longitude)
-        solar_zenith_degrees = self.calculate_solar_zenith_degrees(solar_ts, latitude)
+    def calculate_air_mass(self, local_standard_time, latitude, longitude, site_altitude_m=None):
+        solar_zenith_degrees = self.calculate_solar_zenith_degrees(local_standard_time, latitude, longitude)
 
         if solar_zenith_degrees <= 70.:
             return 1. / math.cos(math.radians(solar_zenith_degrees))
@@ -200,21 +187,18 @@ class Solar_Geometry:
                 (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634))
 
     def calculate_solar_azimuth_degrees(self, local_standard_time, latitude, longitude):
-        longitude = validate_long_lat(longitude)
-        latitude = validate_long_lat(latitude, False)
-        local_ts = self.validate_times(local_standard_time)
-        solar_ts = self.calculate_solar_time(local_ts, longitude)
-        hour_angle = self.calculate_hour_angle_degrees(solar_ts)
-        solar_zenith = self.calculate_solar_zenith_degrees(solar_ts, latitude)
-        declination = self.calculate_declination_degrees(solar_ts)
+        solar_ts = self.calculate_solar_time(local_standard_time, longitude)
+        hour_angle = self.calculate_hour_angle_degrees(local_standard_time, longitude)
+        solar_zenith = self.calculate_solar_zenith_degrees(local_standard_time, latitude, longitude)
+        declination = self.calculate_declination_degrees(local_standard_time)
 
         return (hour_angle) / abs(hour_angle) * abs(math.degrees(math.acos(
             ((math.cos(math.radians(solar_zenith)) * math.sin(math.radians(latitude))) - math.sin(math.radians(declination))) /
             (math.sin(math.radians(solar_zenith)) * math.cos(math.radians(latitude))))))
 
     def calculate_solar_noon_in_local_standard_time(self, local_standard_time, longitude):
-        longitude = validate_long_lat(longitude)
-        local_ts = validate_times(local_standard_time)
+        longitude = self.validate_long_lat(longitude)
+        local_ts = self.validate_times(local_standard_time)
         if not(isinstance(local_ts.tzinfo, tzoffset)):
             raise ValueError('local_standard_time must provide a time zone offset, such as `1/1/2019 12:00 PM -06:00`.')
         if local_ts.date() == dt.datetime.now().date():
@@ -256,7 +240,7 @@ class Solar_Geometry:
         for result_var in ['B', 'G_on_W_m2', 'E_min', 'solar_time', 'declination_degrees',
                            'hour_angle_degrees', 'solar_zenith_degrees', 'solar_altitude_degrees',
                            'air_mass', 'solar_azimuth_degrees', 'solar_noon_in_local_time']:
-            results[results_var] = None
+            results[result_var] = None
         
         # Results that only require a date
         results['B'] = self.calculate_B(local_ts)
