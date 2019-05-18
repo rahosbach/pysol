@@ -16,6 +16,17 @@ class SolarGeomTest(unittest.TestCase):
         self.assertRaises(ValueError, lambda: self.solar_geometry.validate_times(20190101))
         self.assertEqual(self.solar_geometry.validate_times(dt.datetime(2019, 1, 1, 12, 0, 0)), dt.datetime(2019, 1, 1, 12, 0, 0))
 
+    def test_validate_long_lat(self):
+        self.assertEqual(self.solar_geometry.validate_long_lat(20.), 20.)
+        self.assertEqual(self.solar_geometry.validate_long_lat(40., longitude=False), 40.)
+        self.assertEqual(self.solar_geometry.validate_long_lat('20'), 20.)
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat('abc'))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat('abc', longitude=False))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(-10.))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(365.))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(-95., longitude=False))
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(95., longitude=False))
+
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('1/2/2018'), 2)
