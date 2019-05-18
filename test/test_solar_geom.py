@@ -27,6 +27,11 @@ class SolarGeomTest(unittest.TestCase):
         self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(-95., longitude=False))
         self.assertRaises(ValueError, lambda: self.solar_geometry.validate_long_lat(95., longitude=False))
 
+    def test_validate_altitude(self):
+        self.assertEqual(self.solar_geometry.validate_altitude(10.), 10.)
+        self.assertEqual(self.solar_geometry.validate_altitude('15'), 15.)
+        self.assertRaises(ValueError, lambda: self.solar_geometry.validate_altitude('abc'))
+
     def test_calculate_day_number_from_date(self):
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('January 2, 2018'), 2)
         self.assertEqual(self.solar_geometry.calculate_day_number_from_date('1/2/2018'), 2)

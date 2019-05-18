@@ -51,11 +51,10 @@ class Solar_Geometry:
 
     @staticmethod
     def validate_altitude(altitude):
-        err_message = 'Variable `site_altitude_m` must be a numeric value.'
         try:
-            value = float(altitude)
+            altitude = float(altitude)
         except:
-            raise ValueError(err_message)
+            raise ValueError('Variable `site_altitude_m` must be a numeric value.')
         return altitude
                     
     def calculate_day_number_from_date(self, date):
