@@ -177,10 +177,14 @@ class Solar_Geometry:
 
         if solar_zenith_degrees <= 70.:
             return 1. / math.cos(math.radians(solar_zenith_degrees))
-        elif site_altitude_m is None:
-            raise ValueError('For a `solar_zenith_degrees` > 70 degrees, a site altitude (in meters) must be provided.')
         else:
-            site_altitude_m = validate_altitude(site_altitude_m)
+            if site_altitude_m is None:
+                warnings.warn('The solar zenith angle is greater than 70 degrees; therefore, to calculate '
+                              'the air mass accurately, a site altitude (in meters) should be provided. '
+                              'For this calculation, a site altitude of 0 m is assumed.')
+                site_altitude_m = 0
+            else:
+                site_altitude_m = validate_altitude(site_altitude_m)
             return math.exp(-0.0001184 * site_altitude_m) / (
                 math.cos(math.radians(solar_zenith_degrees)) + 
                 (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634))
