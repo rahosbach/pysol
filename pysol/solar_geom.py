@@ -53,8 +53,10 @@ class Solar_Geometry:
     def validate_altitude(altitude):
         try:
             altitude = float(altitude)
-        except:
+        except ValueError:
             raise ValueError('Variable `site_altitude_m` must be a numeric value.')
+        except TypeError:
+            raise TypeError('Variable `site_altitude_m` must be a numeric value.')
         return altitude
                     
     def calculate_day_number_from_date(self, date):
@@ -64,15 +66,25 @@ class Solar_Geometry:
         date = self.validate_times(date)
         return date.timetuple().tm_yday
 
-    def calculate_B(self, date):
+    def calculate_B(self, date, day_number=None):
         '''B is a preliminary value used in calculating the extraterrestrial
         radiation incident on the plane normal to the radiation on the nth
         day of the year (G_on) per an equation given by Spencer (1971).
         '''
-        date = self.validate_times(date)
-        n = self.calculate_day_number_from_date(date)
-        return (n - 1) * 360. / 365.
-
+        if day_number is None:
+            date = self.validate_times(date)
+            day_number = self.calculate_day_number_from_date(date)
+        else:
+            try:
+                float(day_number)
+            except ValueError:
+                raise ValueError('Variable `day_number` must be a numeric value between 1 and 365 (inclusive).')
+            except TypeError:
+                raise TypeError('Variable `day_number` must be a numeric value between 1 and 365 (inclusive).')
+            if (day_number < 1) | (day_number > 365):
+                raise ValueError('Variable `day_number` must be a numeric value between 1 and 365 (inclusive).')
+        return (day_number - 1) * 360. / 365.
+        
     def calculate_G_on_W_m2(self, date):
         '''G_on is the extraterrestrial radiation incident on the plane normal
         to the radiation on the nth day of the year per an equation given by
