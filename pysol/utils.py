@@ -33,7 +33,8 @@ def validate_datetime(datetime_object: Union[str, datetime]) -> datetime:
         return datetime_object
 
 
-def ensure_numeric(value, valid_types: Iterable[Any] = [int, float]) -> None:
+def ensure_numeric(value, valid_types: Iterable[Any] = [int, float],
+                   nan_acceptable: bool = False, inf_acceptable: bool = False) -> None:
     """
     Method to ensure a given `value` is of the proper numeric type.
     
@@ -44,11 +45,21 @@ def ensure_numeric(value, valid_types: Iterable[Any] = [int, float]) -> None:
         values in `valid_types`.
     :param valid_types: An iterable containing acceptable types
         for `value`.
+    :param nan_acceptable: A boolean value to indicate whether
+        NaN values are acceptable.
+    :param inf_acceptable: A boolean value to indicate whether
+        infinite values are acceptable.
     """
 
-    if type(value) not in valid_types:
+    if (isnan(value)) & (not(nan_acceptable)):
+        raise ValueError("NaN values are not valid when `nan_acceptable`=False.")
+    elif (isinf(value)) & (not(inf_acceptable)):
+        raise ValueError("Infinite values are not valid when `inf_acceptable`=False.")
+    elif type(value) not in valid_types:
         # If `value` is not of an acceptable type, raise a TypeError.
         raise TypeError(f'`value` must be one of: {valid_types}.')
+    else:
+        pass
 
 
 def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int, float]] = None, maximum: Optional[Union[int, float]] = None) -> None:
