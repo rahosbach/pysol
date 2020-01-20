@@ -1,5 +1,6 @@
 from datetime import datetime
 from dateutil.parser import *
+from math import isinf, isnan
 from typing import Any, Iterable, Optional, Union
 
 
