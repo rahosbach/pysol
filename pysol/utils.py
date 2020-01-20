@@ -27,7 +27,7 @@ def validate_datetime(datetime_object: Union[str, datetime]) -> datetime:
             raise ValueError('`date_time_obj` cannot be parsed into a proper datetime object.')
     elif not(isinstance(datetime_object, datetime)):
         # If `datetime_object` is not a string or a proper datetime value, raise a ValueError.
-        raise ValueError('If variable `date_time_obj` is not a datetime string, it must be a datetime object.')
+        raise TypeError('If variable `date_time_obj` is not a datetime string, it must be a datetime object.')
     else:
         # Otherwise, `datetime_object` should be OK to use.
         return datetime_object
