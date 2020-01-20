@@ -76,7 +76,7 @@ def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int
     """
 
     # Type-check `value`
-    ensure_numeric(value, valid_types=[int, float])
+    ensure_numeric(value, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
 
     # Create standard error message for calling when raising ValueErrors.
     error_message = f'`value` must be between {minimum} and {maximum} (inclusive).'
@@ -86,12 +86,12 @@ def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int
         pass
     elif (minimum is not None) & (value < minimum):
         # Type-check `minimum`
-        ensure_numeric(minimum, valid_types=[int, float])
+        ensure_numeric(minimum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
         # If a minimum requirement is set and `value` is less than that requirement, raise a ValueError.
         raise ValueError(error_message)
     elif (maximum is not None) & (value > maximum):
         # Type-check `maximum`
-        ensure_numeric(maximum, valid_types=[int, float])
+        ensure_numeric(maximum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
         # If a maximum requirement is set and `value` is more than that requirement, raise a ValueError.
         raise ValueError(error_message)
     else:
