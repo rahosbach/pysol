@@ -95,8 +95,8 @@ class SolarGeomTest(unittest.TestCase):
     def test_calculate_solar_noon_in_local_standard_time(self):
         self.assertTrue(abs(
             (self.solar_geometry.calculate_solar_noon_in_local_standard_time('February 3, 2019 10:30 AM -06:00', 89.4) -
-            parse('February 3, 2019 12:11:25 PM -06:00')).total_seconds()) <= 30)
+             parse('February 3, 2019 12:11:25 PM -06:00')).total_seconds()) <= 30)
         self.assertTrue(abs(
             (self.solar_geometry.calculate_solar_noon_in_local_standard_time('June 7, 2019 2:15 PM -08:00', 124) -
-            parse('June 7, 2019 12:14:54 PM -08:00')).total_seconds()) <= 30)
+             parse('June 7, 2019 12:14:54 PM -08:00')).total_seconds()) <= 30)
 
