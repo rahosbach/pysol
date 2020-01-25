@@ -1,7 +1,8 @@
 from datetime import datetime
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import datetimes
-import pytest
 
 from pysoleng.utils import validate_datetime
 
@@ -22,7 +23,7 @@ def test_invalid_type():
         assert validate_datetime(123)
 
 
-@ pytest.mark.utils
+@pytest.mark.utils
 def test_valid_string():
     """Test to ensure validate_datetime() can parse a typical
     datetime string."""
@@ -31,7 +32,7 @@ def test_valid_string():
 
 @pytest.mark.utils
 def test_invalid_string():
-    """Test to ensure validate_datetime() will throw a 
+    """Test to ensure validate_datetime() will throw a
     ValueError with an invalid string input."""
     with pytest.raises(ValueError):
         assert validate_datetime("January 1, blah blah blah")

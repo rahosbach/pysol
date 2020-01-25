@@ -1,13 +1,26 @@
+from math import inf, nan
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
-from math import inf, nan
-import pytest
 
-from pysoleng.solar_geom import calculate_B_degrees, calculate_declination_degrees
+from pysoleng.solar_geom import (
+    calculate_B_degrees,
+    calculate_declination_degrees,
+)
 
 
 @pytest.mark.solar_geom
-@given(floats(min_value=calculate_B_degrees(1), max_value=calculate_B_degrees(366), allow_nan=False, allow_infinity=False, exclude_min=True, exclude_max=True))
+@given(
+    floats(
+        min_value=calculate_B_degrees(1),
+        max_value=calculate_B_degrees(366),
+        allow_nan=False,
+        allow_infinity=False,
+        exclude_min=True,
+        exclude_max=True,
+    )
+)
 def test_calculate_declination_degrees(B):
     """Functional test to ensure the calculate_declination_degrees() method
     runs properly given a valid argument."""
@@ -18,13 +31,19 @@ def test_calculate_declination_degrees(B):
 def test_known_values():
     """Run a few tests with known answers to ensure
     calculate_declination_degrees() is giving the expected output.
-    
+
     These known values are taken from Duffie & Beckman (2006)
     Table 1.6.1.
     """
-    assert calculate_declination_degrees(B_degrees=calculate_B_degrees(day_number=17)) == pytest.approx(-20.903603)
-    assert calculate_declination_degrees(B_degrees=calculate_B_degrees(day_number=105)) == pytest.approx(9.480771)
-    assert calculate_declination_degrees(B_degrees=calculate_B_degrees(day_number=288)) == pytest.approx(-8.217747)
+    assert calculate_declination_degrees(
+        B_degrees=calculate_B_degrees(day_number=17)
+    ) == pytest.approx(-20.903603)
+    assert calculate_declination_degrees(
+        B_degrees=calculate_B_degrees(day_number=105)
+    ) == pytest.approx(9.480771)
+    assert calculate_declination_degrees(
+        B_degrees=calculate_B_degrees(day_number=288)
+    ) == pytest.approx(-8.217747)
 
 
 @pytest.mark.solar_geom
@@ -42,7 +61,7 @@ def test_invalid_type():
         assert calculate_declination_degrees(B_degrees=inf)
 
 
-@ pytest.mark.solar_geom
+@pytest.mark.solar_geom
 def test_invalid_range():
     """Test to ensure a ValueError is raised when a value
     outside the specified range is provided to

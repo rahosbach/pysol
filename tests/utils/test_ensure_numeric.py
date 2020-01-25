@@ -1,7 +1,8 @@
+from math import inf, nan
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import floats, integers
-from math import inf, nan
-import pytest
 
 from pysoleng.utils import ensure_numeric
 
@@ -19,7 +20,9 @@ def test_integers(value):
 def test_floats(value):
     """Functional test to ensure the validate_datetime() method
     runs properly on float values."""
-    ensure_numeric(value, valid_types=[float], nan_acceptable=True, inf_acceptable=True)
+    ensure_numeric(
+        value, valid_types=[float], nan_acceptable=True, inf_acceptable=True
+    )
 
 
 @pytest.mark.utils
@@ -29,10 +32,14 @@ def test_nan_inf():
     set to `False`."""
     with pytest.raises(ValueError):
         # Test for NaN values
-        assert ensure_numeric(nan, valid_types=[int, float], nan_acceptable=False)
+        assert ensure_numeric(
+            nan, valid_types=[int, float], nan_acceptable=False
+        )
     with pytest.raises(ValueError):
         # Test for infinite values
-        assert ensure_numeric(inf, valid_types=[int, float], inf_acceptable=False)
+        assert ensure_numeric(
+            inf, valid_types=[int, float], inf_acceptable=False
+        )
 
 
 @pytest.mark.utils

@@ -1,14 +1,22 @@
+from math import inf, nan
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
-from math import inf, nan
-import pytest
 
 from pysoleng.solar_geom import calculate_B_degrees, calculate_G_on_W_m2
 
 
 @pytest.mark.solar_geom
-@given(floats(min_value=calculate_B_degrees(1), max_value=calculate_B_degrees(366), allow_nan=False, allow_infinity=False),   
-       floats(min_value=0, allow_nan=False, allow_infinity=False))
+@given(
+    floats(
+        min_value=calculate_B_degrees(1),
+        max_value=calculate_B_degrees(366),
+        allow_nan=False,
+        allow_infinity=False,
+    ),
+    floats(min_value=0, allow_nan=False, allow_infinity=False),
+)
 def test_calculate_G_on_W_m2(B, Gsc):
     """Functional test to ensure the calculate_G_on_W_m2() method
     runs properly given valid arguments."""
@@ -19,11 +27,15 @@ def test_calculate_G_on_W_m2(B, Gsc):
 def test_known_values():
     """Run a few tests with known answers to ensure
     calculate_G_on_W_m2() is giving the expected output.
-    
+
     These known values are estimated from Duffie & Beckman (2006) Figure 1.4.1.
     """
-    assert calculate_G_on_W_m2(B_degrees=calculate_B_degrees(1), G_sc=1_367) == pytest.approx(1_414.9134)
-    assert calculate_G_on_W_m2(B_degrees=calculate_B_degrees(180), G_sc=1_367) == pytest.approx(1_321.5236)
+    assert calculate_G_on_W_m2(
+        B_degrees=calculate_B_degrees(1), G_sc=1_367
+    ) == pytest.approx(1_414.9134)
+    assert calculate_G_on_W_m2(
+        B_degrees=calculate_B_degrees(180), G_sc=1_367
+    ) == pytest.approx(1_321.5236)
 
 
 @pytest.mark.solar_geom
@@ -50,7 +62,7 @@ def test_invalid_type():
         assert calculate_G_on_W_m2(B_degrees=200, G_sc=inf)
 
 
-@ pytest.mark.solar_geom
+@pytest.mark.solar_geom
 def test_invalid_range():
     """Test to ensure a ValueError is raised when a value
     outside the specified range is provided to
