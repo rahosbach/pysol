@@ -90,20 +90,20 @@ def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int
     if minimum is not None:
         # Check `minimum`
         if value < (minimum - tolerance):
-        # Type-check `minimum`
-        ensure_numeric(minimum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
-        # If a minimum requirement is set and `value` is less than that requirement, raise a ValueError.
-        raise ValueError(error_message)
+            # Type-check `minimum`
+            ensure_numeric(minimum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
+            # If a minimum requirement is set and `value` is less than that requirement, raise a ValueError.
+            raise ValueError(error_message)
         else:
             # `value` is OK against `minimum`
             pass
     if maximum is not None:
         # Check `maximum`
         if value > (maximum + tolerance):
-        # Type-check `maximum`
-        ensure_numeric(maximum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
-        # If a maximum requirement is set and `value` is more than that requirement, raise a ValueError.
-        raise ValueError(error_message)
-    else:
+            # Type-check `maximum`
+            ensure_numeric(maximum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
+            # If a maximum requirement is set and `value` is more than that requirement, raise a ValueError.
+            raise ValueError(error_message)
+        else:
             # `value` is OK against `maximum`
-        pass
+            pass
