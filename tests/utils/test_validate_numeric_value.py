@@ -2,7 +2,7 @@ from hypothesis import given
 from hypothesis.strategies import floats
 import pytest
 
-from pysol.utils import validate_numeric_value
+from pysoleng.utils import validate_numeric_value
 
 
 @pytest.mark.utils

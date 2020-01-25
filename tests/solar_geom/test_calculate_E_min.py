@@ -3,7 +3,7 @@ from hypothesis.strategies import floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_B_degrees, calculate_E_min
+from pysoleng.solar_geom import calculate_B_degrees, calculate_E_min
 
 
 @pytest.mark.solar_geom

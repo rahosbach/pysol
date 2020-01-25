@@ -3,7 +3,7 @@ from hypothesis.strategies import floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_air_mass
+from pysoleng.solar_geom import calculate_air_mass
 
 
 @pytest.mark.solar_geom

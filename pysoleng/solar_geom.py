@@ -3,7 +3,7 @@ from math import acos, copysign, cos, degrees, exp, pi, radians, sin
 from typing import Union
 from warnings import warn
 
-from pysol.utils import ensure_numeric, validate_numeric_value, validate_datetime
+from pysoleng.utils import ensure_numeric, validate_numeric_value, validate_datetime
 
 
 def calculate_day_number(date: Union[datetime, str]) -> int:

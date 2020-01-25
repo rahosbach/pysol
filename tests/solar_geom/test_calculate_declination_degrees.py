@@ -3,7 +3,7 @@ from hypothesis.strategies import floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_B_degrees, calculate_declination_degrees
+from pysoleng.solar_geom import calculate_B_degrees, calculate_declination_degrees
 
 
 @pytest.mark.solar_geom

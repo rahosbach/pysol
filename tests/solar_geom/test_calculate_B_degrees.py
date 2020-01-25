@@ -4,7 +4,7 @@ from hypothesis.strategies import integers
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_B_degrees
+from pysoleng.solar_geom import calculate_B_degrees
 
 
 @pytest.mark.solar_geom

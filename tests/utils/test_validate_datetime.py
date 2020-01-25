@@ -3,7 +3,7 @@ from hypothesis import given
 from hypothesis.strategies import datetimes
 import pytest
 
-from pysol.utils import validate_datetime
+from pysoleng.utils import validate_datetime
 
 
 @pytest.mark.utils

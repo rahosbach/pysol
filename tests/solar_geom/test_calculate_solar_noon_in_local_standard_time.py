@@ -6,7 +6,7 @@ from hypothesis.strategies import datetimes, floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_solar_noon_in_local_standard_time
+from pysoleng.solar_geom import calculate_solar_noon_in_local_standard_time
 
 
 # Create time zone-aware datetimes for use in testing

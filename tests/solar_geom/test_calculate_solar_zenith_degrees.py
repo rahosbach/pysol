@@ -3,7 +3,7 @@ from hypothesis.strategies import floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_solar_zenith_degrees
+from pysoleng.solar_geom import calculate_solar_zenith_degrees
 
 
 @pytest.mark.solar_geom

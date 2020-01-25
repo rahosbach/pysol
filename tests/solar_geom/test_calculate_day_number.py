@@ -2,7 +2,7 @@ from hypothesis import given
 from hypothesis.strategies import datetimes
 import pytest
 
-from pysol.solar_geom import calculate_day_number
+from pysoleng.solar_geom import calculate_day_number
 
 
 @pytest.mark.solar_geom

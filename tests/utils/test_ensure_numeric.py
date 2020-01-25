@@ -3,7 +3,7 @@ from hypothesis.strategies import floats, integers
 from math import inf, nan
 import pytest
 
-from pysol.utils import ensure_numeric
+from pysoleng.utils import ensure_numeric
 
 
 @pytest.mark.utils

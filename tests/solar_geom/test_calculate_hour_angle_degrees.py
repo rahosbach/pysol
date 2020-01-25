@@ -5,7 +5,7 @@ from hypothesis.strategies import datetimes, floats
 from math import inf, nan
 import pytest
 
-from pysol.solar_geom import calculate_hour_angle_degrees
+from pysoleng.solar_geom import calculate_hour_angle_degrees
 
 
 # Create time zone-aware datetimes for use in testing
