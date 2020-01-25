@@ -16,6 +16,8 @@ def test_validate_datetime(dt):
 
 @pytest.mark.utils
 def test_invalid_type():
+    """Test to ensure a TypeError is raised when an
+    invalid value is provided to validate_datetime()."""
     with pytest.raises(TypeError):
         assert validate_datetime(123)
 
