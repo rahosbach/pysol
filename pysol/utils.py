@@ -62,7 +62,7 @@ def ensure_numeric(value, valid_types: Iterable[Any] = [int, float],
         pass
 
 
-def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int, float]] = None, maximum: Optional[Union[int, float]] = None) -> None:
+def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int, float]] = None, maximum: Optional[Union[int, float]] = None, tolerance: [float] = 1e-2) -> None:
     """
     Method to ensure a given value is within the proper range.
     
@@ -70,30 +70,40 @@ def validate_numeric_value(value: Union[int, float], minimum: Optional[Union[int
 
     :param value: A numeric value to be range-checked.
     :param minimum: A numeric value representing the minimum acceptable value
-        for `value`, or `None` if no minimum is required.
+        for `value`, or `None` (the default) if no minimum is required.
     :param maximum: A numeric value representing the maximum acceptable value
-        for `value`, or `None` if no maximum is required.
+        for `value`, or `None` (the default) if no maximum is required.
+    :param tolerance: An allowable tolerance for comparing to
+        `minimum` and `maximum` (default 1e-2).
     """
 
-    # Type-check `value`
+    # Type-check `value` and `tolerance`
     ensure_numeric(value, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
+    ensure_numeric(tolerance, valid_types=[float], nan_acceptable=False, inf_acceptable=False)
 
     # Create standard error message for calling when raising ValueErrors.
-    error_message = f'`value` must be between {minimum} and {maximum} (inclusive).'
+    error_message = f'`value` must be between {minimum} and {maximum} (inclusive, +/- {tolerance}).'
 
     if (minimum is None) & (maximum is None):
         # No range requirements, so `value` is OK.
         pass
-    elif (minimum is not None) & (value < minimum):
+    if minimum is not None:
+        # Check `minimum`
+        if value < (minimum - tolerance):
         # Type-check `minimum`
         ensure_numeric(minimum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
         # If a minimum requirement is set and `value` is less than that requirement, raise a ValueError.
         raise ValueError(error_message)
-    elif (maximum is not None) & (value > maximum):
+        else:
+            # `value` is OK against `minimum`
+            pass
+    if maximum is not None:
+        # Check `maximum`
+        if value > (maximum + tolerance):
         # Type-check `maximum`
         ensure_numeric(maximum, valid_types=[int, float], nan_acceptable=False, inf_acceptable=True)
         # If a maximum requirement is set and `value` is more than that requirement, raise a ValueError.
         raise ValueError(error_message)
     else:
-        # Otherwise, `value` is within an OK range.
+            # `value` is OK against `maximum`
         pass
