@@ -1,14 +1,14 @@
 from datetime import datetime
-from dateutil.parser import *
+from dateutil.parser import parse
 from math import isinf, isnan
 from typing import Any, Iterable, Optional, Union
 
 
-def validate_datetime(datetime_object: Union[str, datetime]) -> datetime:
+def validate_datetime(datetime_object: Union[datetime, str]) -> datetime:
     """
     Method to validate a datetime object.
 
-    `date_time_object` should be a proper datetime object,
+    `date_time_object` should be a proper datetime object
     or a string that can be parsed into a proper datetime object.
 
     :param date_time_object: A proper datetime object or a string
