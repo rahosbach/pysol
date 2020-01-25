@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-    name='pysol',
+    name='pysoleng',
     url='https://github.com/jladan/package_demo',
     author='Robert Hosbach',
     author_email='robert.hosbach@gmail.com',
     # Needed to actually package something
-    packages=['pysol'],
+    packages=['pysoleng'],
     # Needed for dependencies
     install_requires=['numpy'],
     # *strongly* suggested for sharing
