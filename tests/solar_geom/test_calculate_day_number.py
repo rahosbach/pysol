@@ -1,6 +1,6 @@
+import pytest
 from hypothesis import given
 from hypothesis.strategies import datetimes
-import pytest
 
 from pysoleng.solar_geom import calculate_day_number
 
@@ -30,16 +30,18 @@ def test_invalid_type():
         assert calculate_day_number(date=123)
 
 
-@ pytest.mark.solar_geom
+@pytest.mark.solar_geom
 def test_valid_string():
     """Test to ensure calculate_day_number() can handle a typical
     datetime string."""
-    assert isinstance(calculate_day_number(date="January 1, 2019 12:00 PM"), int)
+    assert isinstance(
+        calculate_day_number(date="January 1, 2019 12:00 PM"), int
+    )
 
 
 @pytest.mark.solar_geom
 def test_invalid_string():
-    """Test to ensure calculate_day_number() will throw a 
+    """Test to ensure calculate_day_number() will throw a
     ValueError with an invalid string input."""
     with pytest.raises(ValueError):
         assert calculate_day_number(date="January 1, blah blah blah")

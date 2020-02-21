@@ -1,13 +1,21 @@
+from math import inf, nan
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
-from math import inf, nan
-import pytest
 
 from pysoleng.solar_geom import calculate_B_degrees, calculate_E_min
 
 
 @pytest.mark.solar_geom
-@given(floats(min_value=calculate_B_degrees(1), max_value=calculate_B_degrees(366), allow_nan=False, allow_infinity=False))
+@given(
+    floats(
+        min_value=calculate_B_degrees(1),
+        max_value=calculate_B_degrees(366),
+        allow_nan=False,
+        allow_infinity=False,
+    )
+)
 def test_calculate_E_min(B):
     """Functional test to ensure the calculate_E_min() method
     runs properly given a valid argument."""
@@ -18,13 +26,17 @@ def test_calculate_E_min(B):
 def test_known_values():
     """Run a few tests with known answers to ensure
     calculate_E_min() is giving the expected output.
-    
+
     These known values are taken from:
     1) Duffie & Beckman (2006) Example 1.5.1, and
     2) Estimated from Duffie & Beckman (2006) Figure 1.5.1
     """
-    assert calculate_E_min(B_degrees=calculate_B_degrees(day_number=34)) == pytest.approx(-13.488457)
-    assert calculate_E_min(B_degrees=calculate_B_degrees(day_number=304)) == pytest.approx(16.37505)
+    assert calculate_E_min(
+        B_degrees=calculate_B_degrees(day_number=34)
+    ) == pytest.approx(-13.488457)
+    assert calculate_E_min(
+        B_degrees=calculate_B_degrees(day_number=304)
+    ) == pytest.approx(16.37505)
 
 
 @pytest.mark.solar_geom
@@ -42,7 +54,7 @@ def test_invalid_type():
         assert calculate_E_min(B_degrees=inf)
 
 
-@ pytest.mark.solar_geom
+@pytest.mark.solar_geom
 def test_invalid_range():
     """Test to ensure a ValueError is raised when a value
     outside the specified range is provided to

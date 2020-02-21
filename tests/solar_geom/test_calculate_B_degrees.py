@@ -1,8 +1,9 @@
 from datetime import datetime
+from math import inf, nan
+
+import pytest
 from hypothesis import given
 from hypothesis.strategies import integers
-from math import inf, nan
-import pytest
 
 from pysoleng.solar_geom import calculate_B_degrees
 
@@ -45,7 +46,7 @@ def test_invalid_type():
         assert calculate_B_degrees(day_number=datetime(2020, 1, 1))
 
 
-@ pytest.mark.solar_geom
+@pytest.mark.solar_geom
 def test_invalid_range():
     """Test to ensure a ValueError is raised when a value
     outside the specified range is provided to

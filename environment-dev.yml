@@ -1,0 +1,29 @@
+name: pysoleng-dev
+channels:
+- conda-forge
+dependencies:
+- python>=3.6
+- black
+- conda
+- doc8
+- flake8
+- hypothesis>=4.4.0
+- ipykernel
+- ipython
+- isort
+- jupyterlab
+- make
+- mypy
+- nbsphinx
+- pip
+- pipreqs
+- pre-commit
+- pyflakes
+- pylint
+- pytest
+- pytest-azurepipelines
+- pytest-cov
+- python-language-server
+- sphinx
+- sphinxcontrib-fulltoc
+- twine
