@@ -1,5 +1,5 @@
 SHELL=/bin/bash
-ACTIVATE=source activate pysoleng-dev
+ACTIVATE=conda activate pysoleng-dev
 
 release:
 	rm dist/*
