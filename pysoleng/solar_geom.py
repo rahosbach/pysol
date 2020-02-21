@@ -370,7 +370,7 @@ def calculate_solar_zenith_degrees(
             )
         )
     )
-    return min(90., calculated_zenith)
+    return min(90.0, calculated_zenith)
 
 
 def calculate_solar_altitude_degrees(solar_zenith_degrees: float) -> float:
