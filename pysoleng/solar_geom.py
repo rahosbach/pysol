@@ -3,6 +3,9 @@ from math import acos, copysign, cos, degrees, exp, pi, radians, sin
 from typing import Union
 from warnings import warn
 
+import numpy as np
+import pandas as pd
+
 from pysoleng.utils import (
     ensure_numeric,
     validate_datetime,
@@ -24,7 +27,7 @@ def calculate_day_number(date: Union[datetime, str]) -> int:
     # Ensure `date` can be parsed into a datetime object
     date = validate_datetime(datetime_object=date)
     # Return the day number corresponding to `date`
-    return date.timetuple().tm_yday
+    return pd.to_datetime(date).dayofyear
 
 
 def calculate_B_degrees(day_number: int) -> float:
