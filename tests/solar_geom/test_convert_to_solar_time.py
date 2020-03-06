@@ -1,6 +1,8 @@
 from datetime import datetime
 from math import inf, nan
 
+import pandas as pd
+
 import pytest
 from dateutil.parser import parse
 from hypothesis import given
@@ -10,7 +12,7 @@ from hypothesis.strategies import datetimes, floats
 from pysoleng.solar_geom import convert_to_solar_time
 
 # Create time zone-aware datetimes for use in testing
-aware_datetimes = datetimes(timezones=timezones())
+aware_datetimes = datetimes(min_value=pd.Timestamp.min, max_value=pd.Timestamp.max, timezones=timezones())
 
 
 @pytest.mark.solar_geom
@@ -75,16 +77,6 @@ def test_no_date_given():
 def test_invalid_type():
     """Test to ensure a TypeError or ValueError is raised
     when an invalid value is provided to convert_to_solar_time()."""
-    with pytest.raises(ValueError):
-        # Test with string value
-        assert convert_to_solar_time(
-            local_standard_time="blah", longitude_degrees=89.4
-        )
-    with pytest.raises(TypeError):
-        # Test with float value
-        assert convert_to_solar_time(
-            local_standard_time=21.0, longitude_degrees=89.4
-        )
     with pytest.raises(ValueError):
         # Test with NaN value
         assert convert_to_solar_time(
