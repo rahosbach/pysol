@@ -4,41 +4,31 @@ from typing import Any, Iterable, Optional, Union
 
 from dateutil.parser import parse
 
+import numpy as np
+import pandas as pd
 
-def validate_datetime(datetime_object: Union[datetime, str]) -> datetime:
+
+def validate_datetime(datetime_object: Union[datetime, np.datetime64, str]) -> pd.Timestamp:
     """
     Method to validate a datetime object.
 
-    `date_time_object` should be a proper datetime object
-    or a string that can be parsed into a proper datetime object.
+    This method relies on the Pandas to_datetime() method for
+    parsing the input into a proper datetime object.
 
     :param date_time_object: A proper datetime object or a string
         that can be parsed into a proper datetime object.
 
-    :returns: A proper datetime object.
+    :returns: A Pandas Timestamp object.
     """
 
-    if isinstance(datetime_object, str):
-        # If `datetime_object` is a string, try to parse it.
-        try:
-            ts = parse(datetime_object)
-            return ts
-        # If `datetime_object` can't be parsed, raise a ValueError.
-        except ValueError:
-            raise ValueError(
-                """`date_time_obj` cannot be parsed into
-                a proper datetime object."""
-            )
-    elif not (isinstance(datetime_object, datetime)):
-        """If `datetime_object` is not a string or
-        a proper datetime value, raise a ValueError."""
-        raise TypeError(
-            """If variable `date_time_obj` is not a datetime string,
-            it must be a datetime object."""
+    try:
+        return pd.to_datetime(datetime_object)
+    # If `datetime_object` can't be parsed, raise a ValueError.
+    except ValueError:
+        raise ValueError(
+            f"""{datetime_object} cannot be parsed into
+            a proper datetime object."""
         )
-    else:
-        # Otherwise, `datetime_object` should be OK to use.
-        return datetime_object
 
 
 def ensure_numeric(
