@@ -22,17 +22,11 @@ def validate_datetime(
         iterable containing proper datetime objects or
         parse-able strings.
 
-    :returns: A Pandas Timestamp object, or a list of Pandas Timestamp objects.
+    :returns: A Pandas Timestamp object, or a Pandas DatetimeIndex of multiple objects.
     """
 
     try:
-        pre = pd.to_datetime(datetime_object)
-        try:
-            # If pre is a pd.DateTimeIndex of multiple values
-            return list(pre)
-        except TypeError:
-            # If pre is a single pd.Timestamp value
-            return pre
+        return pd.to_datetime(datetime_object)
     # If `datetime_object` can't be parsed, raise a ValueError.
     except ValueError:
         raise ValueError(
