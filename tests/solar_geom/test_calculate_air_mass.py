@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -19,6 +20,24 @@ def test_calculate_air_mass(zenith, altitude):
         calculate_air_mass(
             solar_zenith_degrees=zenith, site_altitude_m=altitude
         ),
+        float,
+    )
+
+
+@pytest.mark.solar_geom
+def test_calculate_air_mass_iterable():
+    """Functional test to ensure the calculate_air_mass() method
+    runs properly given valid iterables."""
+    assert isinstance(
+        calculate_air_mass(
+            solar_zenith_degrees=[10, 20], site_altitude_m=20
+        ),
+        np.ndarray,
+    )
+    assert isinstance(
+        calculate_air_mass(
+            solar_zenith_degrees=[10, 20], site_altitude_m=20
+        )[0],
         float,
     )
 

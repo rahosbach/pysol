@@ -440,9 +440,9 @@ def calculate_solar_altitude_degrees(solar_zenith_degrees: Union[float, Iterable
 
 
 def calculate_air_mass(
-    solar_zenith_degrees: Union[int, float],
+    solar_zenith_degrees: Union[int, float, Iterable[Union[int, float]]],
     site_altitude_m: Union[int, float] = 0,
-) -> float:
+) -> Union[float, Iterable[float]]:
     """
     Air mass is the ratio of the mass of atmosphere through which
     beam radiation passes to the mass it would pass through if
@@ -467,10 +467,16 @@ def calculate_air_mass(
     validate_numeric_value(value=solar_zenith_degrees, minimum=0, maximum=90)
     validate_numeric_value(value=site_altitude_m, minimum=-413, maximum=None)
 
-    return exp(-0.0001184 * site_altitude_m) / (
-        cos(radians(solar_zenith_degrees))
-        + (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634)
-    )
+    try:
+        return np.exp(-0.0001184 * site_altitude_m) / (
+            np.cos(np.radians(solar_zenith_degrees))
+            + (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634)
+        )
+    except TypeError:
+        return np.exp(-0.0001184 * site_altitude_m) / (
+            np.cos(np.radians(np.array(solar_zenith_degrees)))
+            + (0.5057 * (96.080 - np.array(solar_zenith_degrees)) ** -1.634)
+        )
 
 
 def calculate_solar_azimuth_degrees(
