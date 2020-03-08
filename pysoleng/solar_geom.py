@@ -367,9 +367,9 @@ def calculate_hour_angle_degrees(
 
 def calculate_solar_zenith_degrees(
     latitude_degrees: Union[int, float],
-    declination_degrees: Union[int, float],
-    hour_angle_degrees: Union[int, float],
-) -> float:
+    declination_degrees: Union[int, float, Iterable[Union[int, float]]],
+    hour_angle_degrees: Union[int, float, Iterable[Union[int, float]]],
+) -> Union[float, Iterable[float]]:
     """
     The solar zenith angle is the angle between
     the vertical and the line to the sun, that is,
@@ -402,16 +402,16 @@ def calculate_solar_zenith_degrees(
     )
     validate_numeric_value(value=hour_angle_degrees, minimum=-180, maximum=180)
 
-    return degrees(
-        acos(
+    return np.degrees(
+        np.arccos(
             (
-                cos(radians(latitude_degrees))
-                * cos(radians(declination_degrees))
-                * cos(radians(hour_angle_degrees))
+                np.cos(np.radians(latitude_degrees))
+                * np.cos(np.radians(declination_degrees))
+                * np.cos(np.radians(hour_angle_degrees))
             )
             + (
-                sin(radians(latitude_degrees))
-                * sin(radians(declination_degrees))
+                np.sin(np.radians(latitude_degrees))
+                * np.sin(np.radians(declination_degrees))
             )
         )
     )
