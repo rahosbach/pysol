@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from math import acos, copysign, cos, degrees, exp, pi, radians, sin
-from typing import Union
+from typing import Iterable, Union
 from warnings import warn
 
 import numpy as np
@@ -13,7 +13,9 @@ from pysoleng.utils import (
 )
 
 
-def calculate_day_number(date: Union[datetime, str]) -> int:
+def calculate_day_number(
+    date: Union[datetime, str, Iterable[Union[datetime, str]]]
+) -> int:
     """
     Method to calculate the day number of the year
     given a proper date.
@@ -27,7 +29,10 @@ def calculate_day_number(date: Union[datetime, str]) -> int:
     # Ensure `date` can be parsed into a datetime object
     date = validate_datetime(datetime_object=date)
     # Return the day number corresponding to `date`
-    return pd.to_datetime(date).dayofyear
+    if type(date) is pd.Timestamp:
+        return date.dayofyear
+    else:
+        return list(date.dayofyear)
 
 
 def calculate_B_degrees(day_number: int) -> float:
