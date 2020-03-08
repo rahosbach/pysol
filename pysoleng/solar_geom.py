@@ -417,7 +417,7 @@ def calculate_solar_zenith_degrees(
     )
 
 
-def calculate_solar_altitude_degrees(solar_zenith_degrees: float) -> float:
+def calculate_solar_altitude_degrees(solar_zenith_degrees: Union[float, Iterable[float]]) -> Union[float, Iterable[float]]:
     """
     The solar altitude is the angle complementing the
     solar zenith angle.  Therefore, it is the angle
@@ -432,7 +432,11 @@ def calculate_solar_altitude_degrees(solar_zenith_degrees: float) -> float:
 
     # Validate `solar_zenith_degrees`
     validate_numeric_value(value=solar_zenith_degrees, minimum=0, maximum=90)
-    return 90.0 - solar_zenith_degrees
+    
+    try:
+        return 90.0 - solar_zenith_degrees
+    except TypeError:
+        return 90.0 - np.array(solar_zenith_degrees)
 
 
 def calculate_air_mass(

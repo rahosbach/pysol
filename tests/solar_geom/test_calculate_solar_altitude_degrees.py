@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -16,6 +17,18 @@ def test_calculate_solar_altitude_degrees(zenith):
     runs properly given a valid zenith angle."""
     assert isinstance(
         calculate_solar_altitude_degrees(solar_zenith_degrees=zenith), float
+    )
+
+
+@pytest.mark.solar_geom
+def test_calculate_solar_altitude_degrees_iterable():
+    """Functional test to ensure the calculate_solar_altitude_degrees() method
+    runs properly given a valid zenith angle."""
+    assert isinstance(
+        calculate_solar_altitude_degrees(solar_zenith_degrees=[10, 20]), np.ndarray
+    )
+    assert isinstance(
+        calculate_solar_altitude_degrees(solar_zenith_degrees=[10, 20])[0], float
     )
 
 
