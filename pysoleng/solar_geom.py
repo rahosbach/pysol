@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from math import acos, copysign, cos, degrees, exp, pi, radians, sin
+from math import copysign
 from typing import Iterable, Union
 from warnings import warn
 
@@ -251,7 +251,7 @@ def convert_to_solar_time(
         return [x + timedelta(minutes=longitude_correction_mins + E[i]) for i,x in enumerate(local_ts)]
 
 
-def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
+def calculate_declination_degrees(B_degrees: Union[int, float, Iterable[Union[int, float]]]) -> Union[float, Iterable[float]]:
     """
     The declination is the angular position of the sun
     at solar noon with respect to the plane of the
@@ -285,18 +285,18 @@ def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
     )
 
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
     declination_degrees = (
         180.0
-        / pi
+        / np.pi
         * (
             0.006918
-            - (0.399912 * cos(B_radians))
-            + (0.070257 * sin(B_radians))
-            - (0.006758 * cos(2 * B_radians))
-            + (0.000907 * sin(2 * B_radians))
-            - (0.002697 * cos(3 * B_radians))
-            + (0.00148 * sin(3 * B_radians))
+            - (0.399912 * np.cos(B_radians))
+            + (0.070257 * np.sin(B_radians))
+            - (0.006758 * np.cos(2 * B_radians))
+            + (0.000907 * np.sin(2 * B_radians))
+            - (0.002697 * np.cos(3 * B_radians))
+            + (0.00148 * np.sin(3 * B_radians))
         )
     )
 
