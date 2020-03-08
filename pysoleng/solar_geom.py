@@ -307,9 +307,9 @@ def calculate_declination_degrees(B_degrees: Union[int, float, Iterable[Union[in
 
 
 def calculate_hour_angle_degrees(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> float:
+) -> Union[float, Iterable[float]]:
     """
     The hour angle is the angular displacement of the
     sun east (negative) or west (positive) of the local
@@ -332,18 +332,32 @@ def calculate_hour_angle_degrees(
     solar_ts = convert_to_solar_time(local_standard_time, longitude_degrees)
 
     # Create a datetime object for noon on the same date as `solar_ts`
-    solar_noon = datetime(
-        year=solar_ts.date().year,
-        month=solar_ts.date().month,
-        day=solar_ts.date().day,
-        hour=12,
-        minute=0,
-        second=0,
-        tzinfo=solar_ts.tzinfo,
-    )
+    try:
+        solar_noon = np.array([datetime(
+            year=x.date().year,
+            month=x.date().month,
+            day=x.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=x.tzinfo,
+        ) for x in solar_ts])
+    except TypeError:
+        solar_noon = datetime(
+            year=solar_ts.date().year,
+            month=solar_ts.date().month,
+            day=solar_ts.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=solar_ts.tzinfo,
+        )
 
     # Calculate the difference (in hours) and multiply by 15
-    hours_diff = (solar_ts - solar_noon).total_seconds() / 3600
+    if not (isinstance(solar_noon, np.ndarray)):
+        hours_diff = (solar_ts - solar_noon).total_seconds() / 3600
+    else:
+        hours_diff = np.array([(x - solar_noon[i]).total_seconds() / 3600 for i,x in enumerate(solar_ts)])
     hour_angle = hours_diff * 15.0
 
     # Valiate `hour_angle`
