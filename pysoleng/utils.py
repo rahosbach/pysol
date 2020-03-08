@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from datetime import datetime
 from math import isinf, isnan
 from typing import Any, Iterable, Optional, Union
@@ -57,19 +58,22 @@ def ensure_numeric(
         infinite values are acceptable.
     """
 
-    if (isnan(value)) & (not (nan_acceptable)):
-        raise ValueError(
-            "NaN values are not valid when `nan_acceptable`=False."
-        )
-    elif (isinf(value)) & (not (inf_acceptable)):
-        raise ValueError(
-            "Infinite values are not valid when `inf_acceptable`=False."
-        )
-    elif type(value) not in valid_types:
-        # If `value` is not of an acceptable type, raise a TypeError.
-        raise TypeError(f"`value` must be one of: {valid_types}.")
-    else:
-        pass
+    # Convert `value` to a list, if not already an iterable
+    if not(isinstance(value, Iterable)):
+        value = [value]
+    
+    for val in value:
+        if (isnan(val)) & (not (nan_acceptable)):
+            raise ValueError(
+                "NaN values are not valid when `nan_acceptable`=False."
+            )
+        elif (isinf(val)) & (not (inf_acceptable)):
+            raise ValueError(
+                "Infinite values are not valid when `inf_acceptable`=False."
+            )
+        elif type(val) not in valid_types:
+            # If `value` is not of an acceptable type, raise a TypeError.
+            raise TypeError(f"`value` must contain one of: {valid_types}.")
 
 
 def validate_numeric_value(
