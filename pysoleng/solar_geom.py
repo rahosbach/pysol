@@ -131,7 +131,7 @@ def calculate_G_on_W_m2(
     return G_sc * multiplier
 
 
-def calculate_E_min(B_degrees: Union[int, float]) -> float:
+def calculate_E_min(B_degrees: Union[int, float, Iterable[Union[int, float]]]) -> Union[float, Iterable[float]]:
     """
     E is the equation of time (in minutes), which is
     based on the day of the year.
@@ -162,13 +162,13 @@ def calculate_E_min(B_degrees: Union[int, float]) -> float:
         maximum=calculate_B_degrees(366),
     )
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
     return 229.2 * (
         0.000075
-        + (0.001868 * cos(B_radians))
-        - (0.032077 * sin(B_radians))
-        - (0.014615 * cos(2 * B_radians))
-        - (0.04089 * sin(2 * B_radians))
+        + (0.001868 * np.cos(B_radians))
+        - (0.032077 * np.sin(B_radians))
+        - (0.014615 * np.cos(2 * B_radians))
+        - (0.04089 * np.sin(2 * B_radians))
     )
 
 
