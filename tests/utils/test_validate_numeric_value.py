@@ -18,6 +18,14 @@ def test_validate_numeric_value(value):
 
 
 @pytest.mark.utils
+def test_validate_numeric_value_iterable():
+    """Functional test to ensure validate_numeric_value()
+    runs properly for range-valid iterables."""
+    validate_numeric_value([0, 10, 20, 30], minimum=-1e6, maximum=1e6)
+    validate_numeric_value([-1000.5, 0, 10.4, -20.7], minimum=-1e6, maximum=1e6)
+
+
+@pytest.mark.utils
 def test_invalid_type():
     """Test to ensure a TypeError is thrown when a
     non-numeric value is provided."""
