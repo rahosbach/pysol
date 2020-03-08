@@ -15,7 +15,7 @@ from pysoleng.utils import (
 
 def calculate_day_number(
     date: Union[datetime, str, Iterable[Union[datetime, str]]]
-) -> int:
+) -> Union[int, Iterable[int]]:
     """
     Method to calculate the day number of the year
     given a proper date.
@@ -35,7 +35,7 @@ def calculate_day_number(
         return list(date.dayofyear)
 
 
-def calculate_B_degrees(day_number: int) -> float:
+def calculate_B_degrees(day_number: Union[int, Iterable[int]]) -> Union[float, Iterable[float]]:
     """
     B is a preliminary value used in calculating the extraterrestrial
     radiation incident on the plane normal to the radiation on the
@@ -63,7 +63,12 @@ def calculate_B_degrees(day_number: int) -> float:
     )
     # Ensure `day_number` is in the proper range
     validate_numeric_value(day_number, minimum=1, maximum=366)
-    return (day_number - 1) * 360.0 / 365.0
+
+    try:
+        return (day_number - 1) * 360.0 / 365.0
+    except TypeError:
+        # When `day_number` is an iterable, but not a numpy array
+        return (np.array(day_number) - 1) * 360.0 / 365
 
 
 def calculate_G_on_W_m2(
