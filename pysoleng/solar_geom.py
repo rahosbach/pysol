@@ -74,8 +74,8 @@ def calculate_B_degrees(
 
 
 def calculate_G_on_W_m2(
-    B_degrees: Union[int, float], G_sc: Union[int, float] = 1_367
-) -> float:
+    B_degrees: Union[int, float, Iterable[Union[int, float]]], G_sc: Union[int, float] = 1_367
+) -> Union[float, Iterable[float]]:
     """
     Method to calculate the extraterrestrial radiation
     incident on the plane normal to the radiation
@@ -118,15 +118,15 @@ def calculate_G_on_W_m2(
     validate_numeric_value(G_sc, minimum=0, maximum=None)
 
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
 
     # Calculate the multiplier for `G_sc`
     multiplier = (
         1.000110
-        + (0.034221 * cos(B_radians))
-        + (0.001280 * sin(B_radians))
-        + (0.000719 * cos(2 * B_radians))
-        + (0.000077 * sin(2 * B_radians))
+        + (0.034221 * np.cos(B_radians))
+        + (0.001280 * np.sin(B_radians))
+        + (0.000719 * np.cos(2 * B_radians))
+        + (0.000077 * np.sin(2 * B_radians))
     )
     return G_sc * multiplier
 

@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -15,12 +16,20 @@ from pysoleng.solar_geom import calculate_B_degrees, calculate_G_on_W_m2
         allow_nan=False,
         allow_infinity=False,
     ),
-    floats(min_value=0, allow_nan=False, allow_infinity=False),
+    floats(min_value=1, max_value=1_000_000, allow_nan=False, allow_infinity=False),
 )
 def test_calculate_G_on_W_m2(B, Gsc):
     """Functional test to ensure the calculate_G_on_W_m2() method
     runs properly given valid arguments."""
     assert isinstance(calculate_G_on_W_m2(B_degrees=B, G_sc=Gsc), float)
+
+
+@pytest.mark.solar_geom
+def test_calculate_G_on_W_m2_iterable():
+    """Functional test to ensure the calculate_G_on_W_m2() method
+    runs properly given valid iterables for `B_degrees`."""
+    assert isinstance(calculate_G_on_W_m2(B_degrees=[47, 50, 65], G_sc=1_367), np.ndarray)
+    assert isinstance(calculate_G_on_W_m2(B_degrees=[47, 50, 65], G_sc=1_367)[0], float)
 
 
 @pytest.mark.solar_geom
