@@ -59,7 +59,7 @@ def calculate_B_degrees(
     # Ensure `day_number` is an integer
     ensure_numeric(
         day_number,
-        valid_types=[int],
+        valid_types=[int, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -98,13 +98,13 @@ def calculate_G_on_W_m2(
     # Type-check `B_degrees` and `G_sc`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
     ensure_numeric(
         G_sc,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -151,7 +151,7 @@ def calculate_E_min(B_degrees: Union[int, float, Iterable[Union[int, float]]]) -
     # Type-check `B_degrees`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -173,9 +173,9 @@ def calculate_E_min(B_degrees: Union[int, float, Iterable[Union[int, float]]]) -
 
 
 def convert_to_solar_time(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> datetime:
+) -> Union[datetime, Iterable[datetime]]:
     """
     Method to calculate solar time given a local standard timestamp
     (including date and time zone offset from UTC) and a location's
@@ -210,15 +210,28 @@ def convert_to_solar_time(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
         )
-    if local_ts.date() == datetime.now().date():
-        # Provide a warning if `local_ts` only contains a time, but no date
-        warn(
-            UserWarning(
-                """A date was likely not provided in local_standard_time;
-                therefore, the date has been set to today."""
-            )
-        )
 
+    try:
+        # This works for iterables
+        if any([x.date() == datetime.now().date() for x in local_ts]):
+            # Provide a warning if `local_ts` only contains a time, but no date
+            warn(
+                UserWarning(
+                    """A date may not have been provided in local_standard_time;
+                    therefore, the date has been set to today for at least
+                    one entry."""
+                )
+            )
+    except TypeError:
+        if local_ts.date() == datetime.now().date():
+            # Provide a warning if `local_ts` only contains a time, but no date
+            warn(
+                UserWarning(
+                    """A date may not have been provided in local_standard_time;
+                    therefore, the date has been set to today."""
+                )
+            )
+        
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
 
@@ -230,7 +243,12 @@ def convert_to_solar_time(
         calculate_B_degrees(calculate_day_number(local_standard_time))
     )
     longitude_correction_mins = 4.0 * (standard_meridian - longitude_degrees)
-    return local_ts + timedelta(minutes=longitude_correction_mins + E)
+
+    try:
+        return local_ts + timedelta(minutes=longitude_correction_mins + E)
+    except TypeError:
+        # When working with iterables
+        return [x + timedelta(minutes=longitude_correction_mins + E[i]) for i,x in enumerate(local_ts)]
 
 
 def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
@@ -255,7 +273,7 @@ def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
     # Type-check `B_degrees`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )

@@ -13,8 +13,8 @@ from pysoleng.solar_geom import convert_to_solar_time
 
 # Create time zone-aware datetimes for use in testing
 aware_datetimes = datetimes(
-    min_value=pd.Timestamp.min,
-    max_value=pd.Timestamp.max,
+    min_value=pd.Timestamp.min + pd.DateOffset(2),
+    max_value=pd.Timestamp.max - pd.DateOffset(2),
     timezones=timezones(),
 )
 
@@ -32,6 +32,24 @@ def test_convert_to_solar_time(dt, longitude):
             local_standard_time=dt, longitude_degrees=longitude
         ),
         datetime,
+    )
+
+
+@pytest.mark.solar_geom
+def test_convert_to_solar_time_iterable():
+    """Functional test to ensure the convert_to_solar_time() method
+    runs properly given valid interables."""
+    assert isinstance(
+        convert_to_solar_time(
+            local_standard_time=['January 1, 2020 10:00 AM -06:00', 'January 15, 2020 10:00 AM -06:00'], longitude_degrees=89.4
+        ),
+        list,
+    )
+    assert isinstance(
+        convert_to_solar_time(
+            local_standard_time=['January 1, 2020 10:00 AM -06:00', 'January 15, 2020 10:00 AM -06:00'], longitude_degrees=89.4
+        )[0],
+        pd.Timestamp,
     )
 
 
@@ -73,6 +91,19 @@ def test_no_date_given():
     with pytest.warns(UserWarning):
         assert convert_to_solar_time(
             local_standard_time=parse("10:30 AM -06:00"),
+            longitude_degrees=89.4,
+        )
+
+
+@pytest.mark.solar_geom
+def test_no_date_given_iterable():
+    """Run a test with an iterable that only includes
+    a time, with no date.  This should throw a
+    warning.
+    """
+    with pytest.warns(UserWarning):
+        assert convert_to_solar_time(
+            local_standard_time=[parse("10:30 AM -06:00"), parse("12:30 PM -06:00")],
             longitude_degrees=89.4,
         )
 
