@@ -8,21 +8,31 @@ import numpy as np
 import pandas as pd
 
 
-def validate_datetime(datetime_object: Union[datetime, np.datetime64, str]) -> pd.Timestamp:
+def validate_datetime(
+    datetime_object: Union[datetime, np.datetime64, str, Iterable[Union[datetime, np.datetime64, str]]]
+) -> Union[pd.Timestamp, Iterable[pd.Timestamp]]:
     """
     Method to validate a datetime object.
 
     This method relies on the Pandas to_datetime() method for
     parsing the input into a proper datetime object.
 
-    :param date_time_object: A proper datetime object or a string
-        that can be parsed into a proper datetime object.
+    :param date_time_object: A proper datetime object, a string
+        that can be parsed into a proper datetime object, or an
+        iterable containing proper datetime objects or
+        parse-able strings.
 
-    :returns: A Pandas Timestamp object.
+    :returns: A Pandas Timestamp object, or a list of Pandas Timestamp objects.
     """
 
     try:
-        return pd.to_datetime(datetime_object)
+        pre = pd.to_datetime(datetime_object)
+        try:
+            # If pre is a pd.DateTimeIndex of multiple values
+            return list(pre)
+        except TypeError:
+            # If pre is a single pd.Timestamp value
+            return pre
     # If `datetime_object` can't be parsed, raise a ValueError.
     except ValueError:
         raise ValueError(
