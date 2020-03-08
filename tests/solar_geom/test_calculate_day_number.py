@@ -19,7 +19,10 @@ def test_calculate_day_number(value):
 def test_calculate_day_number_iterable():
     """Functional test to ensure the calculate_day_number() method
     runs properly on proper datetime iterables."""
-    iterable = [pd.to_datetime('January 1, 2020'), pd.to_datetime('January 13, 2020')]
+    iterable = [
+        pd.to_datetime("January 1, 2020"),
+        pd.to_datetime("January 13, 2020"),
+    ]
     assert isinstance(calculate_day_number(date=iterable), list)
     assert isinstance(calculate_day_number(date=iterable)[0], int)
 

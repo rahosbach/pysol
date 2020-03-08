@@ -20,7 +20,10 @@ def test_validate_datetime(dt):
 def test_validate_datetime_iterable():
     """Functional test to ensure the validate_datetime() method
     runs properly on naive datetime iterables."""
-    iterable = [pd.to_datetime('January 1, 2020'), pd.to_datetime('January 13, 2020')]
+    iterable = [
+        pd.to_datetime("January 1, 2020"),
+        pd.to_datetime("January 13, 2020"),
+    ]
     assert isinstance(validate_datetime(iterable), pd.DatetimeIndex)
     assert isinstance(validate_datetime(iterable)[0], pd.Timestamp)
 
@@ -29,7 +32,9 @@ def test_validate_datetime_iterable():
 def test_valid_string():
     """Test to ensure validate_datetime() can parse a typical
     datetime string."""
-    assert isinstance(validate_datetime("January 1, 2019 12:00 PM"), pd.Timestamp)
+    assert isinstance(
+        validate_datetime("January 1, 2019 12:00 PM"), pd.Timestamp
+    )
 
 
 @pytest.mark.utils

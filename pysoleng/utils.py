@@ -10,7 +10,12 @@ import pandas as pd
 
 
 def validate_datetime(
-    datetime_object: Union[datetime, np.datetime64, str, Iterable[Union[datetime, np.datetime64, str]]]
+    datetime_object: Union[
+        datetime,
+        np.datetime64,
+        str,
+        Iterable[Union[datetime, np.datetime64, str]],
+    ]
 ) -> Union[pd.Timestamp, Iterable[pd.Timestamp]]:
     """
     Method to validate a datetime object.
@@ -23,7 +28,8 @@ def validate_datetime(
         iterable containing proper datetime objects or
         parse-able strings.
 
-    :returns: A Pandas Timestamp object, or a Pandas DatetimeIndex of multiple objects.
+    :returns: A Pandas Timestamp object, or
+        a Pandas DatetimeIndex of multiple objects.
     """
 
     try:
@@ -59,9 +65,9 @@ def ensure_numeric(
     """
 
     # Convert `value` to a list, if not already an iterable
-    if not(isinstance(value, Iterable)):
+    if not (isinstance(value, Iterable)):
         value = [value]
-    
+
     for val in value:
         if (isnan(val)) & (not (nan_acceptable)):
             raise ValueError(
@@ -120,26 +126,26 @@ def validate_numeric_value(
     else:
         if minimum is not None:
             # Type-check `minimum`
-                ensure_numeric(
-                    minimum,
-                    valid_types=[int, float],
-                    nan_acceptable=False,
-                    inf_acceptable=True,
-                )
+            ensure_numeric(
+                minimum,
+                valid_types=[int, float],
+                nan_acceptable=False,
+                inf_acceptable=True,
+            )
         if maximum is not None:
             # Type-check `maximum`
-                ensure_numeric(
-                    maximum,
-                    valid_types=[int, float],
-                    nan_acceptable=False,
-                    inf_acceptable=True,
-                )
+            ensure_numeric(
+                maximum,
+                valid_types=[int, float],
+                nan_acceptable=False,
+                inf_acceptable=True,
+            )
 
     # Convert `value` to a list, if not already an iterable
-    if not(isinstance(value, Iterable)):
+    if not (isinstance(value, Iterable)):
         value = [value]
 
-    for val in value:   
+    for val in value:
         if minimum is not None:
             # Check `minimum`
             if val < (minimum - tolerance):

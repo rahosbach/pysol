@@ -35,7 +35,9 @@ def calculate_day_number(
         return list(date.dayofyear)
 
 
-def calculate_B_degrees(day_number: Union[int, Iterable[int]]) -> Union[float, Iterable[float]]:
+def calculate_B_degrees(
+    day_number: Union[int, Iterable[int]]
+) -> Union[float, Iterable[float]]:
     """
     B is a preliminary value used in calculating the extraterrestrial
     radiation incident on the plane normal to the radiation on the

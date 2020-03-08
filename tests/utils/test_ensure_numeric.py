@@ -33,10 +33,16 @@ def test_iterable():
         [1, 2, 3], valid_types=[int], nan_acceptable=True, inf_acceptable=True
     )
     ensure_numeric(
-        [1.2, -2.4, 3.7, inf], valid_types=[float], nan_acceptable=True, inf_acceptable=True
+        [1.2, -2.4, 3.7, inf],
+        valid_types=[float],
+        nan_acceptable=True,
+        inf_acceptable=True,
     )
     ensure_numeric(
-        [1, 2.5, inf, nan], valid_types=[int, float], nan_acceptable=True, inf_acceptable=True
+        [1, 2.5, inf, nan],
+        valid_types=[int, float],
+        nan_acceptable=True,
+        inf_acceptable=True,
     )
 
 

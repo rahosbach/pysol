@@ -12,7 +12,11 @@ from hypothesis.strategies import datetimes, floats
 from pysoleng.solar_geom import calculate_solar_noon_in_local_standard_time
 
 # Create time zone-aware datetimes for use in testing
-aware_datetimes = datetimes(min_value=pd.Timestamp.min, max_value=pd.Timestamp.max, timezones=timezones())
+aware_datetimes = datetimes(
+    min_value=pd.Timestamp.min,
+    max_value=pd.Timestamp.max,
+    timezones=timezones(),
+)
 
 
 @pytest.mark.solar_geom
