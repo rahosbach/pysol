@@ -23,7 +23,7 @@ def test_calculate_solar_altitude_degrees(zenith):
 @pytest.mark.solar_geom
 def test_calculate_solar_altitude_degrees_iterable():
     """Functional test to ensure the calculate_solar_altitude_degrees() method
-    runs properly given a valid zenith angle."""
+    runs properly given a valid zenith angle iterable."""
     assert isinstance(
         calculate_solar_altitude_degrees(solar_zenith_degrees=[10, 20]), np.ndarray
     )
