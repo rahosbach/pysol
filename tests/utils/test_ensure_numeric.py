@@ -70,6 +70,3 @@ def test_invalid_types():
     with pytest.raises(TypeError):
         # Test for strings
         assert ensure_numeric("blah", valid_types=[int, float])
-    with pytest.raises(TypeError):
-        # Test for boolean values
-        assert ensure_numeric(True, valid_types=[int, float])

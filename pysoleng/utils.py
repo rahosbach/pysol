@@ -33,7 +33,7 @@ def validate_datetime(
     """
 
     try:
-        return pd.to_datetime(datetime_object)
+        return pd.to_datetime(datetime_object, infer_datetime_format=True)
     # If `datetime_object` can't be parsed, raise a ValueError.
     except ValueError:
         raise ValueError(
@@ -77,7 +77,7 @@ def ensure_numeric(
             raise ValueError(
                 "Infinite values are not valid when `inf_acceptable`=False."
             )
-        elif type(val) not in valid_types:
+        elif not (isinstance(val, tuple(valid_types))):
             # If `val` is not of an acceptable type, raise a TypeError.
             raise TypeError(f"`value` must contain one of: {valid_types}.")
 
