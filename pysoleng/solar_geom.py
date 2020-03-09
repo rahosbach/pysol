@@ -480,10 +480,10 @@ def calculate_air_mass(
 
 
 def calculate_solar_azimuth_degrees(
-    hour_angle_degrees: Union[int, float],
+    hour_angle_degrees: Union[int, float, Iterable[Union[int, float]]],
     latitude_degrees: Union[int, float],
-    declination_degrees: Union[int, float],
-) -> float:
+    declination_degrees: Union[int, float, Iterable[Union[int, float]]],
+) -> Union[float, Iterable[float]]:
     """
     The solar azimuth angle is the angular displacement from south
     of the projection of beam radiation on the horizontal plane.
@@ -523,30 +523,34 @@ def calculate_solar_azimuth_degrees(
     )
 
     # copysign(x, y) returns `x` with the sign of `y`
-    try:
-        return copysign(1, hour_angle_degrees) * abs(
-            degrees(
-                acos(
+    pre = np.copysign(1, hour_angle_degrees) * abs(
+        np.degrees(
+            np.arccos(
+                (
                     (
-                        (
-                            cos(radians(solar_zenith_degrees))
-                            * sin(radians(latitude_degrees))
-                        )
-                        - sin(radians(declination_degrees))
+                        np.cos(np.radians(solar_zenith_degrees))
+                        * np.sin(np.radians(latitude_degrees))
                     )
-                    / (
-                        sin(radians(solar_zenith_degrees))
-                        * cos(radians(latitude_degrees))
-                    )
+                    - np.sin(np.radians(declination_degrees))
+                )
+                / (
+                    np.sin(np.radians(solar_zenith_degrees))
+                    * np.cos(np.radians(latitude_degrees))
                 )
             )
         )
-    except (ZeroDivisionError, ValueError):
-        """A `ZeroDivisionError` or `ValueError` can occur when the sun
+    )
+    
+    """Zero division can occur when the sun
         is directly overhead, which is possible:
         on the equator, on an equinox, at solar noon.
         In this case, just return 0."""
-        return 0.0
+    if isinstance(pre, np.ndarray):
+        pre[ ~ np.isfinite( pre )] = 0.
+    else:
+        if not(np.isfinite(pre)):
+            pre = 0.
+    return pre
 
 
 def calculate_solar_noon_in_local_standard_time(
