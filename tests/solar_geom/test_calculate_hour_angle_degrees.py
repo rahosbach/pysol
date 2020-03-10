@@ -4,7 +4,6 @@ import pandas as pd
 
 import numpy as np
 import pytest
-from dateutil.parser import parse
 from hypothesis import given
 from hypothesis.extra.pytz import timezones
 from hypothesis.strategies import datetimes, floats
@@ -77,20 +76,7 @@ def test_naive_datetime():
     """
     with pytest.raises(ValueError):
         assert calculate_hour_angle_degrees(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
-            longitude_degrees=89.4,
-        )
-
-
-@pytest.mark.solar_geom
-def test_no_date_given():
-    """Run a test with an object that only includes
-    a time, with no date.  This should throw a
-    warning.
-    """
-    with pytest.warns(UserWarning):
-        assert calculate_hour_angle_degrees(
-            local_standard_time=parse("10:30 AM -06:00"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=89.4,
         )
 
@@ -102,13 +88,13 @@ def test_invalid_type():
     with pytest.raises(ValueError):
         # Test with NaN value
         assert calculate_hour_angle_degrees(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=nan,
         )
     with pytest.raises(ValueError):
         # Test with infinite value
         assert calculate_hour_angle_degrees(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=inf,
         )
 
@@ -121,12 +107,12 @@ def test_invalid_range():
     with pytest.raises(ValueError):
         # Test with too-low value
         assert calculate_hour_angle_degrees(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=-10,
         )
     with pytest.raises(ValueError):
         # Test with too-high value
         assert calculate_hour_angle_degrees(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=400,
         )
