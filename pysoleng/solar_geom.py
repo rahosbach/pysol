@@ -211,27 +211,6 @@ def convert_to_solar_time(
             such as `1/1/2019 12:00 PM -06:00`."""
         )
 
-    try:
-        # This works for iterables
-        if any([x.date() == datetime.now().date() for x in local_ts]):
-            # Provide a warning if `local_ts` only contains a time, but no date
-            warn(
-                UserWarning(
-                    """A date may not have been provided in local_standard_time;
-                    therefore, the date has been set to today for at least
-                    one entry."""
-                )
-            )
-    except TypeError:
-        if local_ts.date() == datetime.now().date():
-            # Provide a warning if `local_ts` only contains a time, but no date
-            warn(
-                UserWarning(
-                    """A date may not have been provided in local_standard_time;
-                    therefore, the date has been set to today."""
-                )
-            )
-        
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
 
