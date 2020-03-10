@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from math import copysign
 from typing import Iterable, Union
-from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -210,7 +209,7 @@ def convert_to_solar_time(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
         )
-
+        
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
 
@@ -595,15 +594,15 @@ def calculate_solar_noon_in_local_standard_time(
             tzinfo=x.tzinfo,
         ) for x in local_ts])
     except TypeError:
-    solar_noon = datetime(
-        year=local_ts.date().year,
-        month=local_ts.date().month,
-        day=local_ts.date().day,
-        hour=12,
-        minute=0,
-        second=0,
-        tzinfo=local_ts.tzinfo,
-    )
+        solar_noon = datetime(
+            year=local_ts.date().year,
+            month=local_ts.date().month,
+            day=local_ts.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=local_ts.tzinfo,
+        )
 
     if isinstance(solar_noon, np.ndarray):
         result = np.array([x - timedelta(minutes=E[i] + longitude_correction_mins) for i,x in enumerate(solar_noon)])
