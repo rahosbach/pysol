@@ -554,9 +554,9 @@ def calculate_solar_azimuth_degrees(
 
 
 def calculate_solar_noon_in_local_standard_time(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> datetime:
+) -> Union[datetime, Iterable[datetime]]:
     """
     Method to calculate solar noon given a local standard timestamp
     (including date and time zone offset from UTC) and a location's
@@ -591,14 +591,6 @@ def calculate_solar_noon_in_local_standard_time(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
         )
-    if local_ts.date() == datetime.now().date():
-        # Provide a warning if `local_ts` only contains a time, but no date
-        warn(
-            UserWarning(
-                """A date was likely not provided in local_standard_time;
-                therefore, the date has been set to today."""
-            )
-        )
 
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
@@ -612,6 +604,18 @@ def calculate_solar_noon_in_local_standard_time(
     )
     longitude_correction_mins = 4.0 * (standard_meridian - longitude_degrees)
 
+    # Create a datetime object for noon on the same date as `solar_ts`
+    try:
+        solar_noon = np.array([datetime(
+            year=x.date().year,
+            month=x.date().month,
+            day=x.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=x.tzinfo,
+        ) for x in local_ts])
+    except TypeError:
     solar_noon = datetime(
         year=local_ts.date().year,
         month=local_ts.date().month,
@@ -622,4 +626,9 @@ def calculate_solar_noon_in_local_standard_time(
         tzinfo=local_ts.tzinfo,
     )
 
-    return solar_noon - timedelta(minutes=E + longitude_correction_mins)
+    if isinstance(solar_noon, np.ndarray):
+        result = np.array([x - timedelta(minutes=E[i] + longitude_correction_mins) for i,x in enumerate(solar_noon)])
+    else:
+        result = solar_noon - timedelta(minutes=E + longitude_correction_mins)
+
+    return result

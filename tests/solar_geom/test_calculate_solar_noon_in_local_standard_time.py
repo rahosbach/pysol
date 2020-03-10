@@ -1,10 +1,10 @@
 from datetime import datetime
 from math import inf, nan
 
+import numpy as np
 import pandas as pd
 
 import pytest
-from dateutil.parser import parse
 from hypothesis import given
 from hypothesis.extra.pytz import timezones
 from hypothesis.strategies import datetimes, floats
@@ -13,8 +13,8 @@ from pysoleng.solar_geom import calculate_solar_noon_in_local_standard_time
 
 # Create time zone-aware datetimes for use in testing
 aware_datetimes = datetimes(
-    min_value=pd.Timestamp.min,
-    max_value=pd.Timestamp.max,
+    min_value=pd.Timestamp.min + pd.DateOffset(2),
+    max_value=pd.Timestamp.max - pd.DateOffset(2),
     timezones=timezones(),
 )
 
@@ -37,6 +37,25 @@ def test_calculate_solar_noon_in_local_standard_time(dt, longitude):
 
 
 @pytest.mark.solar_geom
+def test_calculate_solar_noon_in_local_standard_time_iterable():
+    """Functional test to ensure the
+    calculate_solar_noon_in_local_standard_time() method
+    runs properly given valid iterables."""
+    assert isinstance(
+        calculate_solar_noon_in_local_standard_time(
+            local_standard_time=["February 3, 2019 10:30 AM -06:00", "February 10, 2019 10:30 AM -06:00"], longitude_degrees=89.4
+        ),
+        np.ndarray,
+    )
+    assert isinstance(
+        calculate_solar_noon_in_local_standard_time(
+            local_standard_time=["February 3, 2019 10:30 AM -06:00", "February 10, 2019 10:30 AM -06:00"], longitude_degrees=89.4
+        )[0],
+        datetime,
+    )
+
+
+@pytest.mark.solar_geom
 def test_known_values():
     """Run a test with a known answer to ensure
     calculate_solar_noon_in_local_standard_time()
@@ -47,17 +66,17 @@ def test_known_values():
 
     """
     calculated = calculate_solar_noon_in_local_standard_time(
-        local_standard_time=parse("February 3, 2019 10:30 AM -06:00"),
+        local_standard_time="February 3, 2019 10:30 AM -06:00",
         longitude_degrees=89.4,
     )
-    reference = parse("February 3, 2019 12:11:05 PM -06:00")
+    reference = pd.to_datetime("February 3, 2019 12:11:05 PM -06:00")
     assert abs((calculated - reference).total_seconds()) <= 10
 
     calculated = calculate_solar_noon_in_local_standard_time(
-        local_standard_time=parse("December 1, 2019 10:30 AM -06:00"),
+        local_standard_time="December 1, 2019 10:30 AM -06:00",
         longitude_degrees=89.4,
     )
-    reference = parse("December 1, 2019 11:46:52 AM -06:00")
+    reference = pd.to_datetime("December 1, 2019 11:46:52 AM -06:00")
     assert abs((calculated - reference).total_seconds()) <= 10
 
 
@@ -68,20 +87,7 @@ def test_naive_datetime():
     """
     with pytest.raises(ValueError):
         assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
-            longitude_degrees=89.4,
-        )
-
-
-@pytest.mark.solar_geom
-def test_no_date_given():
-    """Run a test with an object that only includes
-    a time, with no date.  This should throw a
-    warning.
-    """
-    with pytest.warns(UserWarning):
-        assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("10:30 AM -06:00"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=89.4,
         )
 
@@ -94,13 +100,13 @@ def test_invalid_type():
     with pytest.raises(ValueError):
         # Test with NaN value
         assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=nan,
         )
     with pytest.raises(ValueError):
         # Test with infinite value
         assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=inf,
         )
 
@@ -113,12 +119,12 @@ def test_invalid_range():
     with pytest.raises(ValueError):
         # Test with too-low value
         assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=-10,
         )
     with pytest.raises(ValueError):
         # Test with too-high value
         assert calculate_solar_noon_in_local_standard_time(
-            local_standard_time=parse("February 3, 2020 10:30 AM"),
+            local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=400,
         )
