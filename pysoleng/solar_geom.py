@@ -380,7 +380,7 @@ def calculate_solar_zenith_degrees(
     )
     validate_numeric_value(value=hour_angle_degrees, minimum=-180, maximum=180)
 
-    return np.degrees(
+    calculated_zenith = np.degrees(
         np.arccos(
             (
                 np.cos(np.radians(latitude_degrees))
@@ -393,6 +393,8 @@ def calculate_solar_zenith_degrees(
             )
         )
     )
+    
+    return np.minimum(calculated_zenith, 90.)
 
 
 def calculate_solar_altitude_degrees(solar_zenith_degrees: Union[float, Iterable[float]]) -> Union[float, Iterable[float]]:
