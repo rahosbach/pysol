@@ -13,7 +13,9 @@ setup(
     version="0.1",
     # The license can be anything you like
     license="MIT",
-    description="A package implementing the solar calculations from Duffie and Beckman's Solar Engineering of Thermal Processes (2006)",
+    description="""A package implementing the solar calculations
+        from Duffie and Beckman's
+        Solar Engineering of Thermal Processes (2006)""",
     # We will also need a readme eventually (there will be a warning)
     # long_description=open('README.txt').read(),
 )

@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
-from math import acos, copysign, cos, degrees, exp, pi, radians, sin
-from typing import Union
-from warnings import warn
+from math import copysign
+from typing import Iterable, Union
+
+import numpy as np
+import pandas as pd
 
 from pysoleng.utils import (
     ensure_numeric,
@@ -10,7 +12,9 @@ from pysoleng.utils import (
 )
 
 
-def calculate_day_number(date: Union[datetime, str]) -> int:
+def calculate_day_number(
+    date: Union[datetime, str, Iterable[Union[datetime, str]]]
+) -> Union[int, Iterable[int]]:
     """
     Method to calculate the day number of the year
     given a proper date.
@@ -24,10 +28,15 @@ def calculate_day_number(date: Union[datetime, str]) -> int:
     # Ensure `date` can be parsed into a datetime object
     date = validate_datetime(datetime_object=date)
     # Return the day number corresponding to `date`
-    return date.timetuple().tm_yday
+    if type(date) is pd.Timestamp:
+        return date.dayofyear
+    else:
+        return list(date.dayofyear)
 
 
-def calculate_B_degrees(day_number: int) -> float:
+def calculate_B_degrees(
+    day_number: Union[int, Iterable[int]]
+) -> Union[float, Iterable[float]]:
     """
     B is a preliminary value used in calculating the extraterrestrial
     radiation incident on the plane normal to the radiation on the
@@ -49,18 +58,24 @@ def calculate_B_degrees(day_number: int) -> float:
     # Ensure `day_number` is an integer
     ensure_numeric(
         day_number,
-        valid_types=[int],
+        valid_types=[int, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
     # Ensure `day_number` is in the proper range
     validate_numeric_value(day_number, minimum=1, maximum=366)
-    return (day_number - 1) * 360.0 / 365.0
+
+    try:
+        return (day_number - 1) * 360.0 / 365.0
+    except TypeError:
+        # When `day_number` is an iterable, but not a numpy array
+        return (np.array(day_number) - 1) * 360.0 / 365
 
 
 def calculate_G_on_W_m2(
-    B_degrees: Union[int, float], G_sc: Union[int, float] = 1_367
-) -> float:
+    B_degrees: Union[int, float, Iterable[Union[int, float]]],
+    G_sc: Union[int, float] = 1_367,
+) -> Union[float, Iterable[float]]:
     """
     Method to calculate the extraterrestrial radiation
     incident on the plane normal to the radiation
@@ -83,13 +98,13 @@ def calculate_G_on_W_m2(
     # Type-check `B_degrees` and `G_sc`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
     ensure_numeric(
         G_sc,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -103,20 +118,22 @@ def calculate_G_on_W_m2(
     validate_numeric_value(G_sc, minimum=0, maximum=None)
 
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
 
     # Calculate the multiplier for `G_sc`
     multiplier = (
         1.000110
-        + (0.034221 * cos(B_radians))
-        + (0.001280 * sin(B_radians))
-        + (0.000719 * cos(2 * B_radians))
-        + (0.000077 * sin(2 * B_radians))
+        + (0.034221 * np.cos(B_radians))
+        + (0.001280 * np.sin(B_radians))
+        + (0.000719 * np.cos(2 * B_radians))
+        + (0.000077 * np.sin(2 * B_radians))
     )
     return G_sc * multiplier
 
 
-def calculate_E_min(B_degrees: Union[int, float]) -> float:
+def calculate_E_min(
+    B_degrees: Union[int, float, Iterable[Union[int, float]]]
+) -> Union[float, Iterable[float]]:
     """
     E is the equation of time (in minutes), which is
     based on the day of the year.
@@ -136,7 +153,7 @@ def calculate_E_min(B_degrees: Union[int, float]) -> float:
     # Type-check `B_degrees`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -147,20 +164,20 @@ def calculate_E_min(B_degrees: Union[int, float]) -> float:
         maximum=calculate_B_degrees(366),
     )
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
     return 229.2 * (
         0.000075
-        + (0.001868 * cos(B_radians))
-        - (0.032077 * sin(B_radians))
-        - (0.014615 * cos(2 * B_radians))
-        - (0.04089 * sin(2 * B_radians))
+        + (0.001868 * np.cos(B_radians))
+        - (0.032077 * np.sin(B_radians))
+        - (0.014615 * np.cos(2 * B_radians))
+        - (0.04089 * np.sin(2 * B_radians))
     )
 
 
 def convert_to_solar_time(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> datetime:
+) -> Union[datetime, Iterable[datetime]]:
     """
     Method to calculate solar time given a local standard timestamp
     (including date and time zone offset from UTC) and a location's
@@ -195,14 +212,6 @@ def convert_to_solar_time(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
         )
-    if local_ts.date() == datetime.now().date():
-        # Provide a warning if `local_ts` only contains a time, but no date
-        warn(
-            UserWarning(
-                """A date was likely not provided in local_standard_time;
-                therefore, the date has been set to today."""
-            )
-        )
 
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
@@ -215,10 +224,20 @@ def convert_to_solar_time(
         calculate_B_degrees(calculate_day_number(local_standard_time))
     )
     longitude_correction_mins = 4.0 * (standard_meridian - longitude_degrees)
-    return local_ts + timedelta(minutes=longitude_correction_mins + E)
+
+    try:
+        return local_ts + timedelta(minutes=longitude_correction_mins + E)
+    except TypeError:
+        # When working with iterables
+        return [
+            x + timedelta(minutes=longitude_correction_mins + E[i])
+            for i, x in enumerate(local_ts)
+        ]
 
 
-def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
+def calculate_declination_degrees(
+    B_degrees: Union[int, float, Iterable[Union[int, float]]]
+) -> Union[float, Iterable[float]]:
     """
     The declination is the angular position of the sun
     at solar noon with respect to the plane of the
@@ -240,7 +259,7 @@ def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
     # Type-check `B_degrees`
     ensure_numeric(
         B_degrees,
-        valid_types=[int, float],
+        valid_types=[int, float, np.number],
         nan_acceptable=False,
         inf_acceptable=False,
     )
@@ -252,18 +271,18 @@ def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
     )
 
     # Convert `B_degrees` to radians for use in the calculation
-    B_radians = radians(B_degrees)
+    B_radians = np.radians(B_degrees)
     declination_degrees = (
         180.0
-        / pi
+        / np.pi
         * (
             0.006918
-            - (0.399912 * cos(B_radians))
-            + (0.070257 * sin(B_radians))
-            - (0.006758 * cos(2 * B_radians))
-            + (0.000907 * sin(2 * B_radians))
-            - (0.002697 * cos(3 * B_radians))
-            + (0.00148 * sin(3 * B_radians))
+            - (0.399912 * np.cos(B_radians))
+            + (0.070257 * np.sin(B_radians))
+            - (0.006758 * np.cos(2 * B_radians))
+            + (0.000907 * np.sin(2 * B_radians))
+            - (0.002697 * np.cos(3 * B_radians))
+            + (0.00148 * np.sin(3 * B_radians))
         )
     )
 
@@ -274,9 +293,9 @@ def calculate_declination_degrees(B_degrees: Union[int, float]) -> float:
 
 
 def calculate_hour_angle_degrees(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> float:
+) -> Union[float, Iterable[float]]:
     """
     The hour angle is the angular displacement of the
     sun east (negative) or west (positive) of the local
@@ -299,18 +318,42 @@ def calculate_hour_angle_degrees(
     solar_ts = convert_to_solar_time(local_standard_time, longitude_degrees)
 
     # Create a datetime object for noon on the same date as `solar_ts`
-    solar_noon = datetime(
-        year=solar_ts.date().year,
-        month=solar_ts.date().month,
-        day=solar_ts.date().day,
-        hour=12,
-        minute=0,
-        second=0,
-        tzinfo=solar_ts.tzinfo,
-    )
+    try:
+        solar_noon = np.array(
+            [
+                datetime(
+                    year=x.date().year,
+                    month=x.date().month,
+                    day=x.date().day,
+                    hour=12,
+                    minute=0,
+                    second=0,
+                    tzinfo=x.tzinfo,
+                )
+                for x in solar_ts
+            ]
+        )
+    except TypeError:
+        solar_noon = datetime(
+            year=solar_ts.date().year,
+            month=solar_ts.date().month,
+            day=solar_ts.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=solar_ts.tzinfo,
+        )
 
     # Calculate the difference (in hours) and multiply by 15
-    hours_diff = (solar_ts - solar_noon).total_seconds() / 3600
+    if not (isinstance(solar_noon, np.ndarray)):
+        hours_diff = (solar_ts - solar_noon).total_seconds() / 3600
+    else:
+        hours_diff = np.array(
+            [
+                (x - solar_noon[i]).total_seconds() / 3600
+                for i, x in enumerate(solar_ts)
+            ]
+        )
     hour_angle = hours_diff * 15.0
 
     # Valiate `hour_angle`
@@ -320,9 +363,9 @@ def calculate_hour_angle_degrees(
 
 def calculate_solar_zenith_degrees(
     latitude_degrees: Union[int, float],
-    declination_degrees: Union[int, float],
-    hour_angle_degrees: Union[int, float],
-) -> float:
+    declination_degrees: Union[int, float, Iterable[Union[int, float]]],
+    hour_angle_degrees: Union[int, float, Iterable[Union[int, float]]],
+) -> Union[float, Iterable[float]]:
     """
     The solar zenith angle is the angle between
     the vertical and the line to the sun, that is,
@@ -357,23 +400,27 @@ def calculate_solar_zenith_degrees(
     )
     validate_numeric_value(value=hour_angle_degrees, minimum=-180, maximum=180)
 
-    calculated_zenith = degrees(
-        acos(
+    calculated_zenith = np.degrees(
+        np.arccos(
             (
-                cos(radians(latitude_degrees))
-                * cos(radians(declination_degrees))
-                * cos(radians(hour_angle_degrees))
+                np.cos(np.radians(latitude_degrees))
+                * np.cos(np.radians(declination_degrees))
+                * np.cos(np.radians(hour_angle_degrees))
             )
             + (
-                sin(radians(latitude_degrees))
-                * sin(radians(declination_degrees))
+                np.sin(np.radians(latitude_degrees))
+                * np.sin(np.radians(declination_degrees))
             )
         )
     )
     return min(90.0, calculated_zenith)
 
+    return np.minimum(calculated_zenith, 90.0)
 
-def calculate_solar_altitude_degrees(solar_zenith_degrees: float) -> float:
+
+def calculate_solar_altitude_degrees(
+    solar_zenith_degrees: Union[float, Iterable[float]]
+) -> Union[float, Iterable[float]]:
     """
     The solar altitude is the angle complementing the
     solar zenith angle.  Therefore, it is the angle
@@ -388,13 +435,17 @@ def calculate_solar_altitude_degrees(solar_zenith_degrees: float) -> float:
 
     # Validate `solar_zenith_degrees`
     validate_numeric_value(value=solar_zenith_degrees, minimum=0, maximum=90)
-    return 90.0 - solar_zenith_degrees
+
+    try:
+        return 90.0 - solar_zenith_degrees
+    except TypeError:
+        return 90.0 - np.array(solar_zenith_degrees)
 
 
 def calculate_air_mass(
-    solar_zenith_degrees: Union[int, float],
+    solar_zenith_degrees: Union[int, float, Iterable[Union[int, float]]],
     site_altitude_m: Union[int, float] = 0,
-) -> float:
+) -> Union[float, Iterable[float]]:
     """
     Air mass is the ratio of the mass of atmosphere through which
     beam radiation passes to the mass it would pass through if
@@ -419,17 +470,23 @@ def calculate_air_mass(
     validate_numeric_value(value=solar_zenith_degrees, minimum=0, maximum=90)
     validate_numeric_value(value=site_altitude_m, minimum=-413, maximum=None)
 
-    return exp(-0.0001184 * site_altitude_m) / (
-        cos(radians(solar_zenith_degrees))
-        + (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634)
-    )
+    try:
+        return np.exp(-0.0001184 * site_altitude_m) / (
+            np.cos(np.radians(solar_zenith_degrees))
+            + (0.5057 * (96.080 - solar_zenith_degrees) ** -1.634)
+        )
+    except TypeError:
+        return np.exp(-0.0001184 * site_altitude_m) / (
+            np.cos(np.radians(np.array(solar_zenith_degrees)))
+            + (0.5057 * (96.080 - np.array(solar_zenith_degrees)) ** -1.634)
+        )
 
 
 def calculate_solar_azimuth_degrees(
-    hour_angle_degrees: Union[int, float],
+    hour_angle_degrees: Union[int, float, Iterable[Union[int, float]]],
     latitude_degrees: Union[int, float],
-    declination_degrees: Union[int, float],
-) -> float:
+    declination_degrees: Union[int, float, Iterable[Union[int, float]]],
+) -> Union[float, Iterable[float]]:
     """
     The solar azimuth angle is the angular displacement from south
     of the projection of beam radiation on the horizontal plane.
@@ -469,36 +526,40 @@ def calculate_solar_azimuth_degrees(
     )
 
     # copysign(x, y) returns `x` with the sign of `y`
-    try:
-        return copysign(1, hour_angle_degrees) * abs(
-            degrees(
-                acos(
+    pre = np.copysign(1, hour_angle_degrees) * abs(
+        np.degrees(
+            np.arccos(
+                (
                     (
-                        (
-                            cos(radians(solar_zenith_degrees))
-                            * sin(radians(latitude_degrees))
-                        )
-                        - sin(radians(declination_degrees))
+                        np.cos(np.radians(solar_zenith_degrees))
+                        * np.sin(np.radians(latitude_degrees))
                     )
-                    / (
-                        sin(radians(solar_zenith_degrees))
-                        * cos(radians(latitude_degrees))
-                    )
+                    - np.sin(np.radians(declination_degrees))
+                )
+                / (
+                    np.sin(np.radians(solar_zenith_degrees))
+                    * np.cos(np.radians(latitude_degrees))
                 )
             )
         )
-    except (ZeroDivisionError, ValueError):
-        """A `ZeroDivisionError` or `ValueError` can occur when the sun
+    )
+
+    """Zero division can occur when the sun
         is directly overhead, which is possible:
         on the equator, on an equinox, at solar noon.
         In this case, just return 0."""
-        return 0.0
+    if isinstance(pre, np.ndarray):
+        pre[~np.isfinite(pre)] = 0.0
+    else:
+        if not (np.isfinite(pre)):
+            pre = 0.0
+    return pre
 
 
 def calculate_solar_noon_in_local_standard_time(
-    local_standard_time: Union[datetime, str],
+    local_standard_time: Union[datetime, str, Iterable[Union[datetime, str]]],
     longitude_degrees: Union[int, float],
-) -> datetime:
+) -> Union[datetime, Iterable[datetime]]:
     """
     Method to calculate solar noon given a local standard timestamp
     (including date and time zone offset from UTC) and a location's
@@ -533,14 +594,6 @@ def calculate_solar_noon_in_local_standard_time(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
         )
-    if local_ts.date() == datetime.now().date():
-        # Provide a warning if `local_ts` only contains a time, but no date
-        warn(
-            UserWarning(
-                """A date was likely not provided in local_standard_time;
-                therefore, the date has been set to today."""
-            )
-        )
 
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
@@ -554,14 +607,41 @@ def calculate_solar_noon_in_local_standard_time(
     )
     longitude_correction_mins = 4.0 * (standard_meridian - longitude_degrees)
 
-    solar_noon = datetime(
-        year=local_ts.date().year,
-        month=local_ts.date().month,
-        day=local_ts.date().day,
-        hour=12,
-        minute=0,
-        second=0,
-        tzinfo=local_ts.tzinfo,
-    )
+    # Create a datetime object for noon on the same date as `solar_ts`
+    try:
+        solar_noon = np.array(
+            [
+                datetime(
+                    year=x.date().year,
+                    month=x.date().month,
+                    day=x.date().day,
+                    hour=12,
+                    minute=0,
+                    second=0,
+                    tzinfo=x.tzinfo,
+                )
+                for x in local_ts
+            ]
+        )
+    except TypeError:
+        solar_noon = datetime(
+            year=local_ts.date().year,
+            month=local_ts.date().month,
+            day=local_ts.date().day,
+            hour=12,
+            minute=0,
+            second=0,
+            tzinfo=local_ts.tzinfo,
+        )
 
-    return solar_noon - timedelta(minutes=E + longitude_correction_mins)
+    if isinstance(solar_noon, np.ndarray):
+        result = np.array(
+            [
+                x - timedelta(minutes=E[i] + longitude_correction_mins)
+                for i, x in enumerate(solar_noon)
+            ]
+        )
+    else:
+        result = solar_noon - timedelta(minutes=E + longitude_correction_mins)
+
+    return result

@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -48,6 +49,28 @@ def test_calculate_solar_azimuth_degrees(hour_angle, latitude, declination):
 
 
 @pytest.mark.solar_geom
+def test_calculate_solar_azimuth_degrees_iterable():
+    """Functional test to ensure the calculate_solar_azimuth_degrees() method
+    runs properly given valid iterables."""
+    assert isinstance(
+        calculate_solar_azimuth_degrees(
+            hour_angle_degrees=[-10, 0, 10],
+            latitude_degrees=43,
+            declination_degrees=[-14, -10, 5],
+        ),
+        np.ndarray,
+    )
+    assert isinstance(
+        calculate_solar_azimuth_degrees(
+            hour_angle_degrees=[-10, 0, 10],
+            latitude_degrees=43,
+            declination_degrees=[-14, -10, 5],
+        )[0],
+        float,
+    )
+
+
+@pytest.mark.solar_geom
 def test_known_values():
     """Run tests with knowns answer to ensure
     calculate_solar_azimuth_degrees() is giving the expected output.
@@ -60,6 +83,10 @@ def test_known_values():
     assert calculate_solar_azimuth_degrees(
         hour_angle_degrees=97.5, latitude_degrees=43, declination_degrees=23.1
     ) == pytest.approx(112.019756)
+    # On the equator, on an equinox, at solar noon
+    assert calculate_solar_azimuth_degrees(
+        hour_angle_degrees=0, latitude_degrees=0, declination_degrees=0
+    ) == pytest.approx(0)
 
 
 @pytest.mark.solar_geom

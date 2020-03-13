@@ -1,6 +1,7 @@
 from datetime import datetime
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import integers
@@ -14,6 +15,13 @@ def test_calculate_B_degrees(value):
     """Functional test to ensure the calculate_B_degrees() method
     runs properly on integer values in the correct range."""
     assert isinstance(calculate_B_degrees(day_number=value), float)
+
+
+@pytest.mark.solar_geom
+def test_calculate_B_degrees_iterable():
+    """Functional test to ensure the calculate_B_degrees() method
+    runs properly on integer iterables in the correct range."""
+    assert isinstance(calculate_B_degrees(day_number=[1, 10, 20]), np.ndarray)
 
 
 @pytest.mark.solar_geom

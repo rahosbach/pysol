@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -29,6 +30,28 @@ def test_calculate_solar_zenith_degrees(latitude, declination, hour_angle):
             declination_degrees=declination,
             hour_angle_degrees=hour_angle,
         ),
+        float,
+    )
+
+
+@pytest.mark.solar_geom
+def test_calculate_solar_zenith_degrees_iterable():
+    """Functional test to ensure the calculate_hour_angle() method
+    runs properly given valid arguments."""
+    assert isinstance(
+        calculate_solar_zenith_degrees(
+            latitude_degrees=35,
+            declination_degrees=[-10, -15],
+            hour_angle_degrees=[0, 10],
+        ),
+        np.ndarray,
+    )
+    assert isinstance(
+        calculate_solar_zenith_degrees(
+            latitude_degrees=35,
+            declination_degrees=[-10, -15],
+            hour_angle_degrees=[0, 10],
+        )[0],
         float,
     )
 

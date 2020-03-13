@@ -1,5 +1,6 @@
 from math import inf, nan
 
+import numpy as np
 import pytest
 from hypothesis import given
 from hypothesis.strategies import floats
@@ -25,6 +26,18 @@ def test_calculate_declination_degrees(B):
     """Functional test to ensure the calculate_declination_degrees() method
     runs properly given a valid argument."""
     assert isinstance(calculate_declination_degrees(B_degrees=B), float)
+
+
+@pytest.mark.solar_geom
+def test_calculate_declination_degrees_iterable():
+    """Functional test to ensure the calculate_declination_degrees() method
+    runs properly given a valid iterable."""
+    assert isinstance(
+        calculate_declination_degrees(B_degrees=[10, 50, 100]), np.ndarray
+    )
+    assert isinstance(
+        calculate_declination_degrees(B_degrees=[10, 50, 100])[0], float
+    )
 
 
 @pytest.mark.solar_geom

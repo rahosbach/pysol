@@ -1,44 +1,45 @@
+from collections.abc import Iterable
 from datetime import datetime
 from math import isinf, isnan
 from typing import Any, Iterable, Optional, Union
 
 from dateutil.parser import parse
 
+import numpy as np
+import pandas as pd
 
-def validate_datetime(datetime_object: Union[datetime, str]) -> datetime:
+
+def validate_datetime(
+    datetime_object: Union[
+        datetime,
+        np.datetime64,
+        str,
+        Iterable[Union[datetime, np.datetime64, str]],
+    ]
+) -> Union[pd.Timestamp, Iterable[pd.Timestamp]]:
     """
     Method to validate a datetime object.
 
-    `date_time_object` should be a proper datetime object
-    or a string that can be parsed into a proper datetime object.
+    This method relies on the Pandas to_datetime() method for
+    parsing the input into a proper datetime object.
 
-    :param date_time_object: A proper datetime object or a string
-        that can be parsed into a proper datetime object.
+    :param date_time_object: A proper datetime object, a string
+        that can be parsed into a proper datetime object, or an
+        iterable containing proper datetime objects or
+        parse-able strings.
 
-    :returns: A proper datetime object.
+    :returns: A Pandas Timestamp object, or
+        a Pandas DatetimeIndex of multiple objects.
     """
 
-    if isinstance(datetime_object, str):
-        # If `datetime_object` is a string, try to parse it.
-        try:
-            ts = parse(datetime_object)
-            return ts
-        # If `datetime_object` can't be parsed, raise a ValueError.
-        except ValueError:
-            raise ValueError(
-                """`date_time_obj` cannot be parsed into
-                a proper datetime object."""
-            )
-    elif not (isinstance(datetime_object, datetime)):
-        """If `datetime_object` is not a string or
-        a proper datetime value, raise a ValueError."""
-        raise TypeError(
-            """If variable `date_time_obj` is not a datetime string,
-            it must be a datetime object."""
+    try:
+        return pd.to_datetime(datetime_object, infer_datetime_format=True)
+    # If `datetime_object` can't be parsed, raise a ValueError.
+    except ValueError:
+        raise ValueError(
+            f"""{datetime_object} cannot be parsed into
+            a proper datetime object."""
         )
-    else:
-        # Otherwise, `datetime_object` should be OK to use.
-        return datetime_object
 
 
 def ensure_numeric(
@@ -63,23 +64,26 @@ def ensure_numeric(
         infinite values are acceptable.
     """
 
-    if (isnan(value)) & (not (nan_acceptable)):
-        raise ValueError(
-            "NaN values are not valid when `nan_acceptable`=False."
-        )
-    elif (isinf(value)) & (not (inf_acceptable)):
-        raise ValueError(
-            "Infinite values are not valid when `inf_acceptable`=False."
-        )
-    elif type(value) not in valid_types:
-        # If `value` is not of an acceptable type, raise a TypeError.
-        raise TypeError(f"`value` must be one of: {valid_types}.")
-    else:
-        pass
+    # Convert `value` to a list, if not already an iterable
+    if not (isinstance(value, Iterable)):
+        value = [value]
+
+    for val in value:
+        if (isnan(val)) & (not (nan_acceptable)):
+            raise ValueError(
+                "NaN values are not valid when `nan_acceptable`=False."
+            )
+        elif (isinf(val)) & (not (inf_acceptable)):
+            raise ValueError(
+                "Infinite values are not valid when `inf_acceptable`=False."
+            )
+        elif not (isinstance(val, tuple(valid_types))):
+            # If `val` is not of an acceptable type, raise a TypeError.
+            raise TypeError(f"`value` must contain one of: {valid_types}.")
 
 
 def validate_numeric_value(
-    value: Union[int, float],
+    value: Union[int, float, Iterable[Union[int, float]]],
     minimum: Optional[Union[int, float]] = None,
     maximum: Optional[Union[int, float]] = None,
     tolerance: [float] = 1e-2,
@@ -119,9 +123,8 @@ def validate_numeric_value(
     if (minimum is None) & (maximum is None):
         # No range requirements, so `value` is OK.
         pass
-    if minimum is not None:
-        # Check `minimum`
-        if value < (minimum - tolerance):
+    else:
+        if minimum is not None:
             # Type-check `minimum`
             ensure_numeric(
                 minimum,
@@ -129,15 +132,7 @@ def validate_numeric_value(
                 nan_acceptable=False,
                 inf_acceptable=True,
             )
-            """If a minimum requirement is set and `value` is
-            less than that requirement, raise a ValueError."""
-            raise ValueError(error_message)
-        else:
-            # `value` is OK against `minimum`
-            pass
-    if maximum is not None:
-        # Check `maximum`
-        if value > (maximum + tolerance):
+        if maximum is not None:
             # Type-check `maximum`
             ensure_numeric(
                 maximum,
@@ -145,9 +140,22 @@ def validate_numeric_value(
                 nan_acceptable=False,
                 inf_acceptable=True,
             )
-            """If a maximum requirement is set and `value` is
-            more than that requirement, raise a ValueError."""
-            raise ValueError(error_message)
-        else:
-            # `value` is OK against `maximum`
-            pass
+
+    # Convert `value` to a list, if not already an iterable
+    if not (isinstance(value, Iterable)):
+        value = [value]
+
+    for val in value:
+        if minimum is not None:
+            # Check `minimum`
+            if val < (minimum - tolerance):
+                """If a minimum requirement is set and `value` is
+                less than that requirement, raise a ValueError."""
+                raise ValueError(error_message)
+
+        if maximum is not None:
+            # Check `maximum`
+            if val > (maximum + tolerance):
+                """If a maximum requirement is set and `value` is
+                more than that requirement, raise a ValueError."""
+                raise ValueError(error_message)

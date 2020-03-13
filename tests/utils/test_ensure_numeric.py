@@ -26,6 +26,27 @@ def test_floats(value):
 
 
 @pytest.mark.utils
+def test_iterable():
+    """Functional test to ensure the validate_datetime() method
+    runs properly on iterables."""
+    ensure_numeric(
+        [1, 2, 3], valid_types=[int], nan_acceptable=True, inf_acceptable=True
+    )
+    ensure_numeric(
+        [1.2, -2.4, 3.7, inf],
+        valid_types=[float],
+        nan_acceptable=True,
+        inf_acceptable=True,
+    )
+    ensure_numeric(
+        [1, 2.5, inf, nan],
+        valid_types=[int, float],
+        nan_acceptable=True,
+        inf_acceptable=True,
+    )
+
+
+@pytest.mark.utils
 def test_nan_inf():
     """Tests to ensure ensure_numeric() throws ValueErrors
     for NaN and infinite values when those parameters are
@@ -49,6 +70,3 @@ def test_invalid_types():
     with pytest.raises(TypeError):
         # Test for strings
         assert ensure_numeric("blah", valid_types=[int, float])
-    with pytest.raises(TypeError):
-        # Test for boolean values
-        assert ensure_numeric(True, valid_types=[int, float])

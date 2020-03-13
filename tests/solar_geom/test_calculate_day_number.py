@@ -1,3 +1,5 @@
+import pandas as pd
+
 import pytest
 from hypothesis import given
 from hypothesis.strategies import datetimes
@@ -6,11 +8,23 @@ from pysoleng.solar_geom import calculate_day_number
 
 
 @pytest.mark.solar_geom
-@given(datetimes())
+@given(datetimes(min_value=pd.Timestamp.min, max_value=pd.Timestamp.max))
 def test_calculate_day_number(value):
     """Functional test to ensure the calculate_day_number() method
     runs properly on proper datetime objects."""
     assert isinstance(calculate_day_number(date=value), int)
+
+
+@pytest.mark.solar_geom
+def test_calculate_day_number_iterable():
+    """Functional test to ensure the calculate_day_number() method
+    runs properly on proper datetime iterables."""
+    iterable = [
+        pd.to_datetime("January 1, 2020"),
+        pd.to_datetime("January 13, 2020"),
+    ]
+    assert isinstance(calculate_day_number(date=iterable), list)
+    assert isinstance(calculate_day_number(date=iterable)[0], int)
 
 
 @pytest.mark.solar_geom
@@ -20,14 +34,6 @@ def test_known_values():
     assert calculate_day_number(date="January 1, 2020") == 1
     assert calculate_day_number(date="December 31, 2019") == 365
     assert calculate_day_number(date="December 31, 2020") == 366
-
-
-@pytest.mark.solar_geom
-def test_invalid_type():
-    """Test to ensure a TypeError is raised when an
-    invalid value is provided to calculate_day_number()."""
-    with pytest.raises(TypeError):
-        assert calculate_day_number(date=123)
 
 
 @pytest.mark.solar_geom
