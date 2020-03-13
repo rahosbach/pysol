@@ -371,7 +371,9 @@ def calculate_solar_zenith_degrees(
     the vertical and the line to the sun, that is,
     the angle of incidence of beam radiation
     on a horizontal surface.  The solar zenith
-    angle must be between 0 and 90 degrees.
+    angle must be between 0 and 90 degrees, because
+    anything greater than 90 degrees indicates
+    the sun is below the horizon.
 
     The equation used is from Duffie & Beckman (2006)
     Equation 1.6.5.
@@ -411,6 +413,7 @@ def calculate_solar_zenith_degrees(
             )
         )
     )
+    return min(90.0, calculated_zenith)
 
     return np.minimum(calculated_zenith, 90.0)
 
