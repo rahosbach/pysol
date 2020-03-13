@@ -32,8 +32,12 @@ def test_calculate_declination_degrees(B):
 def test_calculate_declination_degrees_iterable():
     """Functional test to ensure the calculate_declination_degrees() method
     runs properly given a valid iterable."""
-    assert isinstance(calculate_declination_degrees(B_degrees=[10, 50, 100]), np.ndarray)
-    assert isinstance(calculate_declination_degrees(B_degrees=[10, 50, 100])[0], float)
+    assert isinstance(
+        calculate_declination_degrees(B_degrees=[10, 50, 100]), np.ndarray
+    )
+    assert isinstance(
+        calculate_declination_degrees(B_degrees=[10, 50, 100])[0], float
+    )
 
 
 @pytest.mark.solar_geom

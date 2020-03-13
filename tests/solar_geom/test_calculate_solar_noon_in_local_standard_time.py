@@ -43,13 +43,21 @@ def test_calculate_solar_noon_in_local_standard_time_iterable():
     runs properly given valid iterables."""
     assert isinstance(
         calculate_solar_noon_in_local_standard_time(
-            local_standard_time=["February 3, 2019 10:30 AM -06:00", "February 10, 2019 10:30 AM -06:00"], longitude_degrees=89.4
+            local_standard_time=[
+                "February 3, 2019 10:30 AM -06:00",
+                "February 10, 2019 10:30 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         ),
         np.ndarray,
     )
     assert isinstance(
         calculate_solar_noon_in_local_standard_time(
-            local_standard_time=["February 3, 2019 10:30 AM -06:00", "February 10, 2019 10:30 AM -06:00"], longitude_degrees=89.4
+            local_standard_time=[
+                "February 3, 2019 10:30 AM -06:00",
+                "February 10, 2019 10:30 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         )[0],
         datetime,
     )

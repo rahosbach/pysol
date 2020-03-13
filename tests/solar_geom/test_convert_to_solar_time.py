@@ -40,13 +40,21 @@ def test_convert_to_solar_time_iterable():
     runs properly given valid interables."""
     assert isinstance(
         convert_to_solar_time(
-            local_standard_time=['January 1, 2020 10:00 AM -06:00', 'January 15, 2020 10:00 AM -06:00'], longitude_degrees=89.4
+            local_standard_time=[
+                "January 1, 2020 10:00 AM -06:00",
+                "January 15, 2020 10:00 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         ),
         list,
     )
     assert isinstance(
         convert_to_solar_time(
-            local_standard_time=['January 1, 2020 10:00 AM -06:00', 'January 15, 2020 10:00 AM -06:00'], longitude_degrees=89.4
+            local_standard_time=[
+                "January 1, 2020 10:00 AM -06:00",
+                "January 15, 2020 10:00 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         )[0],
         pd.Timestamp,
     )

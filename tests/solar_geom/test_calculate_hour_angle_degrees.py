@@ -40,13 +40,21 @@ def test_calculate_hour_angle_iterable():
     runs properly given valid iterables."""
     assert isinstance(
         calculate_hour_angle_degrees(
-            local_standard_time=["February 13, 2020 10:42 AM -06:00", "February 23, 2020 10:42 AM -06:00"], longitude_degrees=89.4
+            local_standard_time=[
+                "February 13, 2020 10:42 AM -06:00",
+                "February 23, 2020 10:42 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         ),
         np.ndarray,
     )
     assert isinstance(
         calculate_hour_angle_degrees(
-            local_standard_time=["February 13, 2020 10:42 AM -06:00", "February 23, 2020 10:42 AM -06:00"], longitude_degrees=89.4
+            local_standard_time=[
+                "February 13, 2020 10:42 AM -06:00",
+                "February 23, 2020 10:42 AM -06:00",
+            ],
+            longitude_degrees=89.4,
         )[0],
         float,
     )
