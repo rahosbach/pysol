@@ -28,8 +28,10 @@ def calculate_day_number(
     # Ensure `date` can be parsed into a datetime object
     date = validate_datetime(datetime_object=date)
     # Return the day number corresponding to `date`
-    if type(date) is pd.Timestamp:
+    if isinstance(date, pd.Timestamp):
         return date.dayofyear
+    elif isinstance(date, pd.Series):
+        return date.dt.dayofyear
     else:
         return list(date.dayofyear)
 
