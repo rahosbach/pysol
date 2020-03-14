@@ -209,23 +209,26 @@ def convert_to_solar_time(
         # Ensure local_ts has time zone information
         if local_ts.dt.tz is None:
             raise ValueError(
-            """`local_standard_time` must provide a time zone offset,
+                """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
-        )
+            )
 
         # Calculate offset from UTC, using timezone offset in `local_ts`
-        utc_offset = local_ts.dt.tz.utcoffset(local_ts).total_seconds() // 3_600
+        utc_offset = (
+            local_ts.dt.tz.utcoffset(local_ts).total_seconds() // 3_600
+        )
     else:
         # Ensure local_ts has time zone information
         if local_ts.tzinfo is None:
             raise ValueError(
-            """`local_standard_time` must provide a time zone offset,
+                """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
-        )
+            )
 
         # Calculate offset from UTC, using timezone offset in `local_ts`
-        utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
-        
+        utc_offset = (
+            local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
+        )
 
     """Determine the standard meridian for the given `longitude_degrees`,
     which corresponds to 15 degrees per hour offset."""
@@ -599,22 +602,26 @@ def calculate_solar_noon_in_local_standard_time(
         # Ensure local_ts has time zone information
         if local_ts.dt.tz is None:
             raise ValueError(
-            """`local_standard_time` must provide a time zone offset,
+                """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
-        )
+            )
 
         # Calculate offset from UTC, using timezone offset in `local_ts`
-        utc_offset = local_ts.dt.tz.utcoffset(local_ts).total_seconds() // 3_600
+        utc_offset = (
+            local_ts.dt.tz.utcoffset(local_ts).total_seconds() // 3_600
+        )
     else:
         # Ensure local_ts has time zone information
         if local_ts.tzinfo is None:
             raise ValueError(
-            """`local_standard_time` must provide a time zone offset,
+                """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
-        )
+            )
 
         # Calculate offset from UTC, using timezone offset in `local_ts`
-        utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
+        utc_offset = (
+            local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
+        )
 
     """Determine the standard meridian for the given `longitude_degrees`,
     which corresponds to 15 degrees per hour offset."""

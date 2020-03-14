@@ -64,12 +64,11 @@ def test_convert_to_solar_time_iterable():
 def test_convert_to_solar_time_pdseries():
     """Functional test to ensure the convert_to_solar_time() method
     runs properly given a Pandas series."""
-    x = pd.Series(pd.date_range('2020-01-01 00:00 -07:00', periods=72, freq='H'))
+    x = pd.Series(
+        pd.date_range("2020-01-01 00:00 -07:00", periods=72, freq="H")
+    )
     assert isinstance(
-        convert_to_solar_time(
-            local_standard_time=x,
-            longitude_degrees=89.4,
-        ),
+        convert_to_solar_time(local_standard_time=x, longitude_degrees=89.4,),
         list,
     )
 
@@ -101,11 +100,10 @@ def test_naive_datetime():
             local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=89.4,
         )
-    x = pd.Series(pd.date_range('2020-01-01 00:00', periods=72, freq='H'))
+    x = pd.Series(pd.date_range("2020-01-01 00:00", periods=72, freq="H"))
     with pytest.raises(ValueError):
         assert convert_to_solar_time(
-            local_standard_time=x,
-            longitude_degrees=89.4
+            local_standard_time=x, longitude_degrees=89.4
         )
 
 
