@@ -28,6 +28,16 @@ def test_calculate_day_number_iterable():
 
 
 @pytest.mark.solar_geom
+def test_calculate_day_number_pdseries():
+    """Functional test to ensure the calculate_day_number() method
+    runs properly on a Pandas series."""
+    x = pd.Series(
+        pd.date_range("2020-01-01 00:00 -07:00", periods=72, freq="H")
+    )
+    assert isinstance(calculate_day_number(date=x), pd.Series)
+
+
+@pytest.mark.solar_geom
 def test_known_values():
     """Run a few tests with known answers to ensure
     calculate_day_number() is giving the expected output."""

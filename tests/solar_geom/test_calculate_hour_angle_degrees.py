@@ -12,8 +12,8 @@ from pysoleng.solar_geom import calculate_hour_angle_degrees
 
 # Create time zone-aware datetimes for use in testing
 aware_datetimes = datetimes(
-    min_value=pd.Timestamp.min,
-    max_value=pd.Timestamp.max,
+    min_value=pd.Timestamp.min + pd.DateOffset(2),
+    max_value=pd.Timestamp.max - pd.DateOffset(2),
     timezones=timezones(),
 )
 

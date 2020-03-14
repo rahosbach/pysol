@@ -64,6 +64,22 @@ def test_calculate_solar_noon_in_local_standard_time_iterable():
 
 
 @pytest.mark.solar_geom
+def test_calculate_solar_noon_in_local_standard_time_iterable():
+    """Functional test to ensure the
+    calculate_solar_noon_in_local_standard_time() method
+    runs properly given a Pandas series."""
+    x = pd.Series(
+        pd.date_range("2020-01-01 00:00 -07:00", periods=72, freq="H")
+    )
+    assert isinstance(
+        calculate_solar_noon_in_local_standard_time(
+            local_standard_time=x, longitude_degrees=89.4,
+        ),
+        np.ndarray,
+    )
+
+
+@pytest.mark.solar_geom
 def test_known_values():
     """Run a test with a known answer to ensure
     calculate_solar_noon_in_local_standard_time()
@@ -97,6 +113,11 @@ def test_naive_datetime():
         assert calculate_solar_noon_in_local_standard_time(
             local_standard_time="February 3, 2020 10:30 AM",
             longitude_degrees=89.4,
+        )
+    x = pd.Series(pd.date_range("2020-01-01 00:00", periods=72, freq="H"))
+    with pytest.raises(ValueError):
+        assert calculate_solar_noon_in_local_standard_time(
+            local_standard_time=x, longitude_degrees=89.4
         )
 
 
