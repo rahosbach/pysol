@@ -424,7 +424,6 @@ def calculate_solar_zenith_degrees(
             )
         )
     )
-    return min(90.0, calculated_zenith)
 
     return np.minimum(calculated_zenith, 90.0)
 
