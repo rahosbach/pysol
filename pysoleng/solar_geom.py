@@ -205,11 +205,19 @@ def convert_to_solar_time(
     # Validate `local_standard_time`
     local_ts = validate_datetime(datetime_object=local_standard_time)
 
-    """Ensure local_standard_time has a date, time, and time zone offset.
-    Note that parse will automaticall fill in a date or time if not
-    provided with the current date and 00:00 (for time)."""
+    if isinstance(local_ts, pd.Series):
+        # Ensure local_ts has time zone information
+        if local_ts.dt.tz is None:
+            raise ValueError(
+            """`local_standard_time` must provide a time zone offset,
+            such as `1/1/2019 12:00 PM -06:00`."""
+        )
+
+        # Calculate offset from UTC, using timezone offset in `local_ts`
+        utc_offset = local_ts.dt.tz.utcoffset(local_ts).total_seconds() // 3_600
+    else:
+        # Ensure local_ts has time zone information
     if local_ts.tzinfo is None:
-        # Check that `local_ts` has a timezone offset
         raise ValueError(
             """`local_standard_time` must provide a time zone offset,
             such as `1/1/2019 12:00 PM -06:00`."""
@@ -218,9 +226,10 @@ def convert_to_solar_time(
     # Calculate offset from UTC, using timezone offset in `local_ts`
     utc_offset = local_ts.tzinfo.utcoffset(local_ts).total_seconds() // 3_600
 
+
     """Determine the standard meridian for the given `longitude_degrees`,
     which corresponds to 15 degrees per hour offset."""
-    standard_meridian = 15 * abs(utc_offset)
+    standard_meridian = 15 * np.abs(utc_offset)
 
     E = calculate_E_min(
         calculate_B_degrees(calculate_day_number(local_standard_time))
