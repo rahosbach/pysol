@@ -536,7 +536,7 @@ def calculate_solar_azimuth_degrees(
     )
 
     # copysign(x, y) returns `x` with the sign of `y`
-    pre = np.copysign(1, hour_angle_degrees) * abs(
+    pre = np.copysign(1, hour_angle_degrees) * np.abs(
         np.degrees(
             np.arccos(
                 (
@@ -558,7 +558,7 @@ def calculate_solar_azimuth_degrees(
         is directly overhead, which is possible:
         on the equator, on an equinox, at solar noon.
         In this case, just return 0."""
-    if isinstance(pre, np.ndarray):
+    if isinstance(pre, (np.ndarray, pd.Series)):
         pre[~np.isfinite(pre)] = 0.0
     else:
         if not (np.isfinite(pre)):
